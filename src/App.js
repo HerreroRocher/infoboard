@@ -7,9 +7,9 @@ function App() {
       <Description /> {/* Description component for the header */}
       <Weather /> {/* Weather component to display weather info */}
       <div className="bustimebox-container"> {/* Container for the bus time boxes */}
-        <BusTimeBox float="left" /> {/* First bus time box */}
-        <BusTimeBox float="center" /> {/* Second bus time box */}
-        <BusTimeBox float="right" /> {/* Third bus time box */}
+        <BusTimeBox /> {/* First bus time box */}
+        <BusTimeBox /> {/* Second bus time box */}
+        <BusTimeBox /> {/* Third bus time box */}
       </div>
     </div>
   );
@@ -44,21 +44,38 @@ function Weather() {
   )
 }
 
-function BusTimeBox({ float }) {
-  const busTimes = Array(8).fill("This is where the bus times will go"); // Create an array of placeholders
+function BusTimeBox() {
 
   return (
-    <div className="bustimebox" style={{ float: { float } }}>
+    <div className="bustimebox">
       <div className="bustimebox-name">
-        <p>where a specific bus stop name will go</p>
+        <p>Pymmes Road </p>
+        <p>towards Arnos Grove Or Bounds Green</p>
       </div>
-      <ul className="bustimebox-content">
-        {busTimes.map((time, index) => (
-          <li key={index}>{time} {/* Placeholder for bus times */}</li>
-        ))}
-      </ul>
+      <div className="bustimebox-content" >
+        <BusTime />
+        <BusTime />
+        <BusTime />
+        <BusTime />
+        <BusTime />
+        <BusTime />
+
+
+      </div>
     </div>
   )
+}
+
+function BusTime() {
+  const busTime = [["34"], ["2 mins"]];
+
+  return (
+    <div className='bustime-one'>
+      <div className='busName'>{busTime[0]}</div>
+      <div className='busTime'>{busTime[1]}</div>
+    </div>
+  )
+
 }
 
 export default App;
