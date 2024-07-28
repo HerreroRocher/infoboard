@@ -2,7 +2,6 @@
   text-align: center;
 }
 
-
 .App-header {
   background-color: #282c34;
   display: flex;
@@ -13,14 +12,37 @@
   color: white;
 }
 
-
 .weather {
   border-color: black;
   background-color: red;
   border-radius: 5px;
   border-width: thick;
-  padding: 20px;
-  margin: 10px;
+  display: flex;
+  flex-wrap: nowrap; 
+  margin-top: 1%;
+}
+
+.weather-box {
+  width: calc(100% / 13 - 2px);
+  height: 100px;
+  border: 1px solid black;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.weather-box-hour{
+  background-color: pink;
+}
+
+
+.weather-box-weather{
+  background-color: orange;
+  height:50%;
+  margin-top: 15%;
 }
 
 .bustimebox-container {
@@ -32,9 +54,21 @@
 .bustimebox {
   border: 1px solid black;
   padding: 20px;
+  padding-top: 10px;
   margin: 10px;
   background-color: lightblue;
   border-radius: 5px;
   width: 30%;
   height: 50vh;
+}
+
+.bustimebox-name {
+  background-color: pink;
+  font-size: 125%;
+}
+
+.bustimebox-content {
+  background-color: orange;
+  height: 40vh;
+  font-size: 125%;
 }

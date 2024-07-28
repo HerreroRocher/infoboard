@@ -1,5 +1,5 @@
-import logo from './logo.svg'; // Import the logo and styles
-import './App.css'; // Import the CSS for styling
+import logo from './logo.svg';
+import './App.css';
 
 function App() {
   return (
@@ -26,21 +26,37 @@ function Description() {
 }
 
 function Weather() {
+  const boxes = Array.from({ length: 13 }, (_, index) => (
+    <div key={index} className="weather-box">
+      <div className="weather-box-hour">
+        Hour +{index} {/* Label each box */}
+      </div>
+      <div className="weather-box-weather">
+        Weather
+      </div>
+    </div>
+  ));
+
   return (
     <div className="weather">
-      <p>
-        This is where the weather will go {/* Placeholder for weather info */}
-      </p>
+      {boxes} {/* Render the 24 boxes */}
     </div>
   )
 }
 
 function BusTimeBox({ float }) {
+  const busTimes = Array(8).fill("This is where the bus times will go"); // Create an array of placeholders
+
   return (
     <div className="bustimebox" style={{ float: { float } }}>
-      <p>
-        This is where a specific bus time will go {/* Placeholder for bus times */}
-      </p>
+      <div className="bustimebox-name">
+        <p>where a specific bus stop name will go</p>
+      </div>
+      <ul className="bustimebox-content">
+        {busTimes.map((time, index) => (
+          <li key={index}>{time} {/* Placeholder for bus times */}</li>
+        ))}
+      </ul>
     </div>
   )
 }
