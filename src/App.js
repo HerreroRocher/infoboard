@@ -25,14 +25,13 @@ function Description() {
 
 function Weather() {
   const [conditions, setConditions] = useState([]); // State for bus times
+  const [localTime, setLocalTime] = useState(0)
 
-  const currentTimeIndex = 9;
 
-
-  const boxes = conditions.slice(currentTimeIndex, currentTimeIndex + 13).map((condition, index) => (
+  const boxes = conditions.slice(localTime, localTime + 13).map((condition, index) => (
     <div key={index} className="weather-box">
       <div className="weather-box-hour">
-        {index + currentTimeIndex}
+        {formatTime(condition.time, false)}
       </div>
       <div className="weather-box-weather">
         <div className='condition-icon'>
@@ -45,6 +44,28 @@ function Weather() {
     </div>
   ));
 
+  function formatTime(datehourmin, int) {
+    const localTimeFull = datehourmin
+    // console.log("localTimeFull: ", localTimeFull)
+    const spaceIndex = localTimeFull.indexOf(' ');
+    const localTimeHourMin = localTimeFull.slice(spaceIndex + 1)
+    // console.log("localTimeHourMin: ", localTimeHourMin)
+    const colonIndex = localTimeHourMin.indexOf(':');
+    const localTimeHour = localTimeHourMin.slice(0, colonIndex)
+    // console.log("localTimeHour: ", localTimeHour)  
+
+    const localTimeHourStr = (localTimeHour.length == 1 ? "0" + localTimeHour : localTimeHour)
+    const localTimeHourInt = parseInt(localTimeHourStr[0] == "0" ? localTimeHourStr[1] : localTimeHourStr)
+    // console.log(localTimeHour[0] == "0")
+    // console.log(localTimeHour)
+    // console.log(localTimeHour[1])
+
+    // console.log("localTimeHourStr", localTimeHourStr)
+    // console.log("localTimeHourInt", localTimeHourInt)
+    
+    return (int? localTimeHourInt : localTimeHourStr)
+  }
+
 
   useEffect(() => {
     fetch("https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=London&days=2&aqi=no")
@@ -54,7 +75,14 @@ function Weather() {
       })
       .then(data => {
 
-        // console.log("Parsed Response", data)
+        console.log("TIME:", formatTime(data.location.localtime, true), "TYPE", typeof(formatTime(data.location.localtime, true)))
+
+        setLocalTime(formatTime(data.location.localtime, true))
+        // setLocalTime(7)
+
+
+
+        console.log("Parsed Response", data)
         let conditions = [];
         for (let x = 0; x < 2; x++) {
           const hourlyData = data.forecast.forecastday[x].hour
