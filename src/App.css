@@ -1,5 +1,7 @@
 html {
   font-size: 16px;
+  background-color: rgb(46, 28, 11);
+
 }
 
 .App {
@@ -7,7 +9,7 @@ html {
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #001c53;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,32 +20,35 @@ html {
 
 .weather {
   border-color: black;
-  background-color: red;
+  background-color: rgb(180, 153, 253);
   border-radius: 0.3125rem; /* 5px to rem */
   border-width: thick;
   display: flex;
   flex-wrap: nowrap;
   margin-top: 1%;
+
 }
 
 .weather-box {
   width: calc(100% / 13 - 0.125rem); /* 2px to rem */
-  height: 7.5rem; /* 100px to rem */
-  border: 0.0625rem solid black; /* 1px to rem */
+  height: auto; /* 100px to rem */
+  /* border: 0.0625rem solid black; 1px to rem */
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */
   box-sizing: border-box;
   margin-left: 0.3125rem; /* 5px to rem */
   margin-right: 0.3125rem; /* 5px to rem */
+  flex-direction: column; /* Align children vertically */
+
 }
 
 .weather-box-hour {
-  background-color: pink;
+  /* background-color: pink; */
 }
 
 .weather-box-weather {
-  background-color: orange;
+  /* background-color: orange; */
 }
 
 .bustimebox-container {

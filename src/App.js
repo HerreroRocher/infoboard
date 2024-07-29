@@ -31,7 +31,7 @@ function Weather() {
   const boxes = conditions.slice(localTime, localTime + 13).map((condition, index) => (
     <div key={index} className="weather-box">
       <div className="weather-box-hour">
-        {formatTime(condition.time, false)}
+        <b>{formatTime(condition.time, false)}</b>
       </div>
       <div className="weather-box-weather">
         <div className='condition-icon'>
