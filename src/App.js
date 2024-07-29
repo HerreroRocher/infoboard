@@ -24,16 +24,62 @@ function Description() {
 }
 
 function Weather() {
-  const boxes = Array.from({ length: 13 }, (_, index) => (
+  const [conditions, setConditions] = useState([]); // State for bus times
+
+  const currentTimeIndex = 9;
+
+
+  const boxes = conditions.slice(currentTimeIndex, currentTimeIndex + 13).map((condition, index) => (
     <div key={index} className="weather-box">
       <div className="weather-box-hour">
-        Hour +{index}
+        {index + currentTimeIndex}
       </div>
       <div className="weather-box-weather">
-        Weather
+        <div className='condition-icon'>
+          <img src={condition.conditionIcon}></img>
+        </div>
+        <div className='condition-text'>
+          {condition.conditionText}
+        </div>
       </div>
     </div>
   ));
+
+
+  useEffect(() => {
+    fetch("https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=London&days=2&aqi=no")
+      .then(response => {
+        // console.log("Raw response: ", response)
+        return response.json()
+      })
+      .then(data => {
+
+        // console.log("Parsed Response", data)
+        let conditions = [];
+        for (let x = 0; x < 2; x++) {
+          const hourlyData = data.forecast.forecastday[x].hour
+          for (let i = 0; i < hourlyData.length; i++) {
+            const time = hourlyData[i].time
+            const conditionText = hourlyData[i].condition.text
+            const conditionIcon = hourlyData[i].condition.icon
+
+            const hourObject = {
+              "time": time,
+              "conditionText": conditionText,
+              "conditionIcon": conditionIcon
+            }
+
+            conditions.push(hourObject)
+
+          }
+
+        }
+
+        console.log("Conditions: ", conditions)
+        setConditions(conditions)
+
+      })
+  }, []);
 
   return (
     <div className="weather">
@@ -48,33 +94,33 @@ function BusTimeBox({ stopId }) {
 
 
   useEffect(() => {
-    console.log("Fetching bus times...");
+    // console.log("Fetching bus times...");
 
     // Log the initial fetch request (Note: This will log the Promise, not the actual data)
-    console.log("Initial fetch request:", fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`).then(response => response.json()));
+    // console.log("Initial fetch request:", fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`).then(response => response.json()));
 
     // Fetch bus times from TfL API
     fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`)
       .then(response => {
         // Log the raw response
-        console.log("Raw response:", response);
+        // console.log("Raw response:", response);
         return response.json();
       })
       .then(data => {
         // Log the parsed JSON data
-        console.log("Parsed data:", data);
+        // console.log("Parsed data:", data);
 
         // Sort the bus times by arrival time
         const sortedData = data.sort((a, b) => a.timeToStation - b.timeToStation);
 
         // Log the sorted data
-        console.log("Sorted data:", sortedData);
+        console.log("Sorted bus data:", sortedData);
 
         // Set the sorted bus times into state
         setBusTimes(sortedData);
 
         // Log the updated busTimes state
-        console.log("Updated busTimes state:", sortedData);
+        // console.log("Updated busTimes state:", sortedData);
       })
       .catch(error => {
         // Log any errors that occur during the fetch
@@ -89,6 +135,7 @@ function BusTimeBox({ stopId }) {
 
     setBusTimes(busTimes.slice(0, maxBusTimes + 4)); // Render only the max number of BusTime components
   }, [busTimes.length]);
+
 
   return (
     <div className="bustimebox">
