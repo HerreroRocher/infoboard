@@ -24,6 +24,11 @@ function LineStatusContainer() {
   const [linesShowing, setLinesShowing] = useState(["piccadilly"]);
   /*Array like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
+  const [lineList, setLineList] = useState("failed");
+    /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
+
+
+
 
 
   useEffect(() => {
@@ -57,7 +62,22 @@ function LineStatusContainer() {
 
         setLinesInfo(allLineStatuses);
 
-        // console.log("All lines statuses:", allLineStatuses);
+        let lines = ""
+
+        for (const line of allLineStatuses){
+          lines += line.name + ", "
+        }
+      
+        lines = lines.slice(0, -2)
+
+        setLineList(lines)
+        console.log("Line LIST", lines)
+
+        // lineOptions = allLineStatuses.map((lineStatus, index) => (
+          
+        // ))
+
+        console.log("All lines statuses:", allLineStatuses);
 
       })
 
@@ -72,13 +92,35 @@ function LineStatusContainer() {
     setLinesShowing(newLinesShowing)
   }
 
-  function addLine(lineName) {
+  function addLine() {
     console.log("ADD BUTTON SUCESSFULLY PRESSED")
-    // console.log("Current lines: ", linesShowing)
-    console.log("Line to remove: ", lineName)
-    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
-    console.log("New Lines: ", newLinesShowing )
-    setLinesShowing(newLinesShowing)
+    console.log("Current lines: ", linesShowing)
+
+    let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.")
+
+    console.log("Line to add: ", lineName)
+
+    if (lineName == null || lineName.trim() === ""){
+      return ;
+    }
+
+    let validLine = false;
+    for (let lineIndex = 0; lineIndex < linesInfo.length; lineIndex++){
+      if (linesInfo[lineIndex].name.toLowerCase() === lineName.toLowerCase()){
+        const newLinesShowing = [...linesShowing, lineName.toLowerCase()];
+        console.log("New Lines: ", newLinesShowing)
+        console.log("Type: ", typeof(newLinesShowing))
+        setLinesShowing(newLinesShowing)
+        validLine = true;
+
+      }
+    }
+
+    if (!validLine){
+      alert("Please enter a correct lines out of our list of lines: " +  lineList)
+      addLine()
+    }
+    // setLinesShowing(["piccadilly", "victoria"])
   }
 
   return (
@@ -94,7 +136,7 @@ function LineStatusContainer() {
       )}
 
       <div className='add-line'>
-        <button className='add-line-button'>+</button>
+        <button className='add-line-button' onClick={addLine}>+</button>
       </div>
     </div>
   )
