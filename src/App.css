@@ -50,13 +50,13 @@ html {
 
 }
 
-.weather-box-hour {
-  /* background-color: pink; */
+/* .weather-box-hour {
+  background-color: pink;
 }
 
 .weather-box-weather {
-  /* background-color: orange; */
-}
+  background-color: orange;
+} */
 
 .bustimebox-container {
   display: flex;
@@ -163,13 +163,36 @@ html {
 .line-status-content {
   display: flex;
   justify-content: space-between;
+  flex-grow: 1;
 }
 
-.line-name,
+.line-name{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 .status {
-  margin: 0;
+  margin-top: 5px;
 }
 
+.remove-line-button {
+  margin-left: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: (40*0.25)rem;
+  height: (40*0.25)rem;
+  /* font-size: 24px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.remove-line-button:hover {
+  background-color: darkred; /* Change color on hover */
+}
 
 .add-line {
   flex: 0.1;
@@ -200,3 +223,4 @@ html {
 .add-line-button:hover {
   background-color: darkgreen; /* Change color on hover */
 }
+

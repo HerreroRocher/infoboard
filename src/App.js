@@ -82,10 +82,12 @@ function LineStatusBox({ lineObject }) {
   return (
     <div className="line-status-box">
       <div className="line-status-content">
-        <div className="line-name">{lineObject.name} Line</div>
+        <div className="line-name">
+          {lineObject.name} Line
+          <button className="remove-line-button">-</button>
+        </div>
         <div className="status">{lineObject.statusSeverityDescription}</div>
       </div>
-      <button className="remove-line-button">-</button>
     </div>
   );
 }
