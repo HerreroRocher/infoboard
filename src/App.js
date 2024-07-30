@@ -2,6 +2,21 @@ import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import './App.css';
 
 function App() {
+  return (
+    <div className="App">
+      <Description />
+      <Weather />
+      <div className="bustimebox-container">
+        <BusTimeBox stopId="490003564W" /> {/* Northbound stop ID */}
+        <BusTimeBox stopId="490003564E" /> {/* Southbound stop ID */}
+        <BusTimeBox stopId="490015187F" /> {/* Eastbound stop ID */}
+      </div>
+      <LineStatusContainer />
+    </div>
+  );
+}
+
+function LineStatusContainer() {
   const [linesInfo, setLinesInfo] = useState([]);
   /*Array like [{name: "Northern", severityStatusDescription: "Good Service", ...}, 
   {name: "Piccadilly", severityStatusDescription: "Bad Service", ...} ]*/
@@ -19,7 +34,7 @@ function App() {
         return response.json()
       })
       .then((data) => {
-        console.log("JSON Parsed response: ", data)
+        // console.log("JSON Parsed response: ", data)
 
         let allLineStatuses = [];
 
@@ -27,64 +42,72 @@ function App() {
           if (datum) {
             const updatedLineStatus = {
               name: datum.name,
-              crowding: datum.crowding,
-              disruptions: datum.disruptions,
+              // crowding: datum.crowding,
+              // disruptions: datum.disruptions,
               id: datum.id,
               statusSeverity: datum.lineStatuses[0].statusSeverity,
               statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
               reason: datum.lineStatuses[0].reason
             };
 
-            console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
+            // console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
             allLineStatuses.push(updatedLineStatus)
           }
         })
 
         setLinesInfo(allLineStatuses);
 
+        // console.log("All lines statuses:", allLineStatuses);
+
       })
 
-
-
   }, [])
-  return (
-    <div className="App">
-      <Description />
-      <Weather />
-      <div className="bustimebox-container">
-        <BusTimeBox stopId="490003564W" /> {/* Northbound stop ID */}
-        <BusTimeBox stopId="490003564E" /> {/* Southbound stop ID */}
-        <BusTimeBox stopId="490015187F" /> {/* Eastbound stop ID */}
-      </div>
-      <div className="line-status-container">
-        {linesInfo ? (
-          linesInfo.map((lineObject, index) => (
-            (linesShowing.includes(lineObject.name.toLowerCase()) ?
-              <LineStatusBox lineObject={lineObject} key={index} />
-              : null)
-          ))
-        ) : (
-          <p>Loading...</p>
-        )}
 
-        <div className='add-line'>
-          <button className='add-line-button'>+</button>
-        </div>
+  function removeLine(lineName) {
+    // console.log("REMOVE BUTTON SUCESSFULLY PRESSED")
+    // console.log("Current lines: ", linesShowing)
+    // console.log("Line to remove: ", lineName)
+    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
+    // console.log("New Lines: ", newLinesShowing )
+    setLinesShowing(newLinesShowing)
+  }
+
+  function addLine(lineName) {
+    console.log("ADD BUTTON SUCESSFULLY PRESSED")
+    // console.log("Current lines: ", linesShowing)
+    console.log("Line to remove: ", lineName)
+    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
+    console.log("New Lines: ", newLinesShowing )
+    setLinesShowing(newLinesShowing)
+  }
+
+  return (
+    <div className="line-status-container">
+      {linesInfo ? (
+        linesInfo.map((lineObject, index) => (
+          (linesShowing.includes(lineObject.name.toLowerCase()) ?
+            <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} />
+            : null)
+        ))
+      ) : (
+        <p>Loading...</p>
+      )}
+
+      <div className='add-line'>
+        <button className='add-line-button'>+</button>
       </div>
     </div>
-  );
+  )
 }
 
-function LineStatusBox({ lineObject }) {
-
-  console.log(lineObject);
+function LineStatusBox({ lineObject, handleRemoveLine }) {
 
   return (
     <div className="line-status-box">
       <div className="line-status-content">
         <div className="line-name">
           {lineObject.name} Line
-          <button className="remove-line-button">-</button>
+          <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
         </div>
         <div className="status">{lineObject.statusSeverityDescription}</div>
       </div>
@@ -175,7 +198,7 @@ function Weather() {
 
         }
 
-        console.log("Conditions: ", conditions)
+        // console.log("Conditions: ", conditions)
         setConditions(conditions)
 
       })
@@ -214,7 +237,7 @@ function BusTimeBox({ stopId }) {
         const sortedData = data.sort((a, b) => a.timeToStation - b.timeToStation);
 
         // Log the sorted data
-        console.log("Bus Times:", sortedData);
+        // console.log("Bus Times:", sortedData);
 
         // Set the sorted bus times into state
         setBusTimes(sortedData);
@@ -261,7 +284,7 @@ function BusTime({ busName, busTime, destinationName }) {
   return (
     <div className='bustime-one'>
       <div className='busName'>{busName} to {destinationName} </div>
-      <div className='busTime'>{busTime === "0 mins" ? "due" : busTime}</div>
+      <div className='busTime'>{busTime === "0 mins" ? "due" : (busTime === "1 mins" ? "1 min" : busTime)}</div>
     </div>
   )
 }
