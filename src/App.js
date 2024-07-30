@@ -2,6 +2,51 @@ import React, { useState, useEffect, useRef } from 'react'; // Import useRef
 import './App.css';
 
 function App() {
+  const [linesInfo, setLinesInfo] = useState([]);
+  /*Array like [{name: "Northern", severityStatusDescription: "Good Service", ...}, 
+  {name: "Piccadilly", severityStatusDescription: "Bad Service", ...} ]*/
+
+  const [linesShowing, setLinesShowing] = useState(["piccadilly"]);
+  /*Array like ["'Picccadilly', 'Victoria', 'Northern'"]*/
+
+
+
+  useEffect(() => {
+
+    fetch(`https://api.tfl.gov.uk/Line/Mode/tube/Status`)
+      .then((response) => {
+        // console.log("Unparsed response: ", response)
+        return response.json()
+      })
+      .then((data) => {
+        console.log("JSON Parsed response: ", data)
+
+        let allLineStatuses = [];
+
+        data.map((datum, index) => {
+          if (datum) {
+            const updatedLineStatus = {
+              name: datum.name,
+              crowding: datum.crowding,
+              disruptions: datum.disruptions,
+              id: datum.id,
+              statusSeverity: datum.lineStatuses[0].statusSeverity,
+              statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
+              reason: datum.lineStatuses[0].reason
+            };
+
+            console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
+            allLineStatuses.push(updatedLineStatus)
+          }
+        })
+
+        setLinesInfo(allLineStatuses);
+
+      })
+
+
+
+  }, [])
   return (
     <div className="App">
       <Description />
@@ -12,55 +57,35 @@ function App() {
         <BusTimeBox stopId="490015187F" /> {/* Eastbound stop ID */}
       </div>
       <div className="line-status-container">
-        <LineStatusBox line="piccadilly" />
-        <LineStatusBox line="victoria" />
+        {linesInfo ? (
+          linesInfo.map((lineObject, index) => (
+            (linesShowing.includes(lineObject.name.toLowerCase()) ?
+              <LineStatusBox lineObject={lineObject} key={index} />
+              : null)
+          ))
+        ) : (
+          <p>Loading...</p>
+        )}
 
+        <div className='add-line'>
+          <button className='add-line-button'>+</button>
+        </div>
       </div>
     </div>
   );
 }
 
-function LineStatusBox({ line }) {
+function LineStatusBox({ lineObject }) {
 
-  const [lineStatus, setLineStatus] = useState({});
-
-  useEffect(() => {
-
-    fetch(`https://api.tfl.gov.uk/Line/${line}/Status`)
-      .then((response) => {
-        // console.log("Unparsed response: ", response)
-        return response.json()
-      })
-      .then((data) => {
-        // console.log("JSON Parsed response: ", data)
-
-        if (data && data.length > 0 && data[0].lineStatuses && data[0].lineStatuses.length > 0) {
-          const updatedLineStatus = {
-            name: data[0].name,
-            crowding: data[0].crowding,
-            disruptions: data[0].disruptions,
-            id: data[0].id,
-            statusSeverity: data[0].lineStatuses[0].statusSeverity,
-            statusSeverityDescription: data[0].lineStatuses[0].statusSeverityDescription
-          };
-
-          setLineStatus(updatedLineStatus)
-
-          console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
-        }
-      })
-
-
-
-  }, [line])
-
+  console.log(lineObject);
 
   return (
     <div className="line-status-box">
       <div className="line-status-content">
-        <div className="line-name">{lineStatus.name} Line</div>
-        <div className="status">{lineStatus.statusSeverityDescription}</div>
+        <div className="line-name">{lineObject.name} Line</div>
+        <div className="status">{lineObject.statusSeverityDescription}</div>
       </div>
+      <button className="remove-line-button">-</button>
     </div>
   );
 }

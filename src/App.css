@@ -14,14 +14,16 @@ html {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(0.625rem + 1vmin); /* 10px + 2vmin */
+  font-size: calc(0.625rem + 1vmin);
+  /* 10px + 2vmin */
   color: white;
 }
 
 .weather {
   border-color: black;
   background-color: rgb(180, 153, 253);
-  border-radius: 0.3125rem; /* 5px to rem */
+  border-radius: 0.3125rem;
+  /* 5px to rem */
   border-width: thick;
   display: flex;
   flex-wrap: nowrap;
@@ -30,16 +32,21 @@ html {
 }
 
 .weather-box {
-  width: calc(100% / 13 - 0.125rem); /* 2px to rem */
-  height: auto; /* 100px to rem */
+  width: calc(100% / 13 - 0.125rem);
+  /* 2px to rem */
+  height: auto;
+  /* 100px to rem */
   /* border: 0.0625rem solid black; 1px to rem */
   align-items: center;
   justify-content: center;
   /* background-color: #f0f0f0; */
   box-sizing: border-box;
-  margin-left: 0.3125rem; /* 5px to rem */
-  margin-right: 0.3125rem; /* 5px to rem */
-  flex-direction: column; /* Align children vertically */
+  margin-left: 0.3125rem;
+  /* 5px to rem */
+  margin-right: 0.3125rem;
+  /* 5px to rem */
+  flex-direction: column;
+  /* Align children vertically */
 
 }
 
@@ -54,16 +61,21 @@ html {
 .bustimebox-container {
   display: flex;
   justify-content: space-around;
-  margin-top: 1.25rem; /* 20px to rem */
+  margin-top: 1.25rem;
+  /* 20px to rem */
 }
 
 .bustimebox {
-  border: 0.0625rem solid black; /* 1px to rem */
-  padding: 1.25rem; /* 20px to rem */
+  border: 0.0625rem solid black;
+  /* 1px to rem */
+  padding: 1.25rem;
+  /* 20px to rem */
   padding-top: 0;
-  margin: 0.625rem; /* 10px to rem */
+  margin: 0.625rem;
+  /* 10px to rem */
   background-color: lightblue;
-  border-radius: 0.3125rem; /* 5px to rem */
+  border-radius: 0.3125rem;
+  /* 5px to rem */
   width: 30%;
   height: 50vh;
 }
@@ -86,30 +98,35 @@ html {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin: 0.125rem; /* 2px to rem */
+  margin: 0.125rem;
+  /* 2px to rem */
   font-size: 60%;
 }
 
 .busTime {
   /* background-color: rgb(12, 177, 231); */
-  padding: 0.3125rem; /* 5px to rem */
+  padding: 0.3125rem;
+  /* 5px to rem */
 }
 
 .busName {
   /* background-color: rgb(90, 247, 90); */
-  padding: 0.3125rem; /* 5px to rem */
+  padding: 0.3125rem;
+  /* 5px to rem */
 }
 
 .bustimebox-name p {
-  margin: 0; /* Removes default margin */
+  margin: 0;
+  /* Removes default margin */
 }
 
 .bustimebox-name .bus-stop,
 .bustimebox-name .bus-towards {
-  margin-bottom: 0.2em; /* Adjusts the space between the lines */
+  margin-bottom: 0.2em;
+  /* Adjusts the space between the lines */
 }
 
-.condition-icon{
+.condition-icon {
   width: 3.75rem;
   height: 3.75rem;
   padding: 0px;
@@ -120,18 +137,25 @@ html {
 .line-status-container {
   display: flex;
   justify-content: space-between;
-  position: fixed; /* Or fixed, depending on your requirements */
+  position: fixed;
+  /* Or fixed, depending on your requirements */
   bottom: 0;
   width: 100%;
-  background-color: rgb(46, 28, 11); /* Optional: for visibility */
-  padding: 10px; /* Optional: for spacing */
+  background-color: rgb(46, 28, 11);
+  /* Optional: for visibility */
+  padding: 10px;
+  /* Optional: for spacing */
 }
 
 .line-status-box {
-  flex: 1; /* Ensure the boxes take equal space */
-  margin: 0 10px; /* Optional: spacing between the boxes */
-  border: 1px solid #ddd; /* Optional: for visibility */
-  padding: 10px; /* Optional: for spacing */
+  flex: 1;
+  /* Ensure the boxes take equal space */
+  margin: 0 10px;
+  /* Optional: spacing between the boxes */
+  border: 1px solid #ddd;
+  /* Optional: for visibility */
+  padding: 10px;
+  /* Optional: for spacing */
   box-sizing: border-box;
   background-color: white;
 }
@@ -141,6 +165,38 @@ html {
   justify-content: space-between;
 }
 
-.line-name, .status {
+.line-name,
+.status {
   margin: 0;
+}
+
+
+.add-line {
+  flex: 0.1;
+  margin: 0 10px;
+  display: flex;           /* Enables Flexbox */
+  align-items: center;     /* Centers vertically */
+  justify-content: center; /* Centers horizontally */
+  height: 50px;            /* Define a height */
+  font-size: 20px;         /* Increase font size for visibility */
+  color: white;            /* Set text color */
+}
+
+.add-line-button {
+  width: 100%;             /* Fill the width of the parent div */
+  height: 100%;            /* Fill the height of the parent div */
+  background-color: rgb(12, 151, 12);
+  color: black;
+  border: none;            /* Remove default button border */
+  color: inherit;          /* Match text color with parent */
+  font-size: inherit;      /* Inherit font size from parent */
+  cursor: pointer;         /* Pointer cursor on hover */
+  display: flex;           /* Enable Flexbox */
+  align-items: center;     /* Center text vertically */
+  justify-content: center; /* Center text horizontally */
+  outline: none;           /* Remove outline on focus */
+}
+
+.add-line-button:hover {
+  background-color: darkgreen; /* Change color on hover */
 }
