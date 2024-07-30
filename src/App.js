@@ -11,6 +11,56 @@ function App() {
         <BusTimeBox stopId="490003564E" /> {/* Southbound stop ID */}
         <BusTimeBox stopId="490015187F" /> {/* Eastbound stop ID */}
       </div>
+      <div className="line-status-container">
+        <LineStatusBox line="piccadilly" />
+        <LineStatusBox line="victoria" />
+
+      </div>
+    </div>
+  );
+}
+
+function LineStatusBox({ line }) {
+
+  const [lineStatus, setLineStatus] = useState({});
+
+  useEffect(() => {
+
+    fetch(`https://api.tfl.gov.uk/Line/${line}/Status`)
+      .then((response) => {
+        // console.log("Unparsed response: ", response)
+        return response.json()
+      })
+      .then((data) => {
+        // console.log("JSON Parsed response: ", data)
+
+        if (data && data.length > 0 && data[0].lineStatuses && data[0].lineStatuses.length > 0) {
+          const updatedLineStatus = {
+            name: data[0].name,
+            crowding: data[0].crowding,
+            disruptions: data[0].disruptions,
+            id: data[0].id,
+            statusSeverity: data[0].lineStatuses[0].statusSeverity,
+            statusSeverityDescription: data[0].lineStatuses[0].statusSeverityDescription
+          };
+
+          setLineStatus(updatedLineStatus)
+
+          console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
+        }
+      })
+
+
+
+  }, [line])
+
+
+  return (
+    <div className="line-status-box">
+      <div className="line-status-content">
+        <div className="line-name">{lineStatus.name} Line</div>
+        <div className="status">{lineStatus.statusSeverityDescription}</div>
+      </div>
     </div>
   );
 }
@@ -34,12 +84,7 @@ function Weather() {
         <b>{formatTime(condition.time, false)}</b>
       </div>
       <div className="weather-box-weather">
-        <div className='condition-icon'>
-          <img src={condition.conditionIcon}></img>
-        </div>
-        <div className='condition-text'>
-          {condition.conditionText}
-        </div>
+        <img className='condition-icon' src={condition.conditionIcon} alt={condition.conditionText}></img>
       </div>
     </div>
   ));
@@ -62,8 +107,8 @@ function Weather() {
 
     // console.log("localTimeHourStr", localTimeHourStr)
     // console.log("localTimeHourInt", localTimeHourInt)
-    
-    return (int? localTimeHourInt : localTimeHourStr)
+
+    return (int ? localTimeHourInt : localTimeHourStr)
   }
 
 
@@ -75,14 +120,14 @@ function Weather() {
       })
       .then(data => {
 
-        console.log("TIME:", formatTime(data.location.localtime, true), "TYPE", typeof(formatTime(data.location.localtime, true)))
+        // console.log("TIME:", formatTime(data.location.localtime, true), "TYPE", typeof (formatTime(data.location.localtime, true)))
 
         setLocalTime(formatTime(data.location.localtime, true))
         // setLocalTime(7)
 
 
 
-        console.log("Parsed Response", data)
+        // console.log("Parsed Response", data)
         let conditions = [];
         for (let x = 0; x < 2; x++) {
           const hourlyData = data.forecast.forecastday[x].hour
@@ -142,7 +187,7 @@ function BusTimeBox({ stopId }) {
         const sortedData = data.sort((a, b) => a.timeToStation - b.timeToStation);
 
         // Log the sorted data
-        console.log("Sorted bus data:", sortedData);
+        console.log("Bus Times:", sortedData);
 
         // Set the sorted bus times into state
         setBusTimes(sortedData);
@@ -193,5 +238,7 @@ function BusTime({ busName, busTime, destinationName }) {
     </div>
   )
 }
+
+
 
 export default App;

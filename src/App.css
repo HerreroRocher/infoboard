@@ -108,3 +108,39 @@ html {
 .bustimebox-name .bus-towards {
   margin-bottom: 0.2em; /* Adjusts the space between the lines */
 }
+
+.condition-icon{
+  width: 3.75rem;
+  height: 3.75rem;
+  padding: 0px;
+  margin: 0px;
+}
+
+
+.line-status-container {
+  display: flex;
+  justify-content: space-between;
+  position: fixed; /* Or fixed, depending on your requirements */
+  bottom: 0;
+  width: 100%;
+  background-color: rgb(46, 28, 11); /* Optional: for visibility */
+  padding: 10px; /* Optional: for spacing */
+}
+
+.line-status-box {
+  flex: 1; /* Ensure the boxes take equal space */
+  margin: 0 10px; /* Optional: spacing between the boxes */
+  border: 1px solid #ddd; /* Optional: for visibility */
+  padding: 10px; /* Optional: for spacing */
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.line-status-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.line-name, .status {
+  margin: 0;
+}
