@@ -25,7 +25,7 @@ function LineStatusContainer() {
   /*Array like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
   const [lineList, setLineList] = useState("failed");
-    /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
+  /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
 
 
@@ -64,20 +64,20 @@ function LineStatusContainer() {
 
         let lines = ""
 
-        for (const line of allLineStatuses){
+        for (const line of allLineStatuses) {
           lines += line.name + ", "
         }
-      
+
         lines = lines.slice(0, -2)
 
         setLineList(lines)
-        console.log("Line LIST", lines)
+        // console.log("Line LIST", lines)
 
         // lineOptions = allLineStatuses.map((lineStatus, index) => (
-          
+
         // ))
 
-        console.log("All lines statuses:", allLineStatuses);
+        // console.log("All lines statuses:", allLineStatuses);
 
       })
 
@@ -87,37 +87,49 @@ function LineStatusContainer() {
     // console.log("REMOVE BUTTON SUCESSFULLY PRESSED")
     // console.log("Current lines: ", linesShowing)
     // console.log("Line to remove: ", lineName)
+
+    const isConfirmed = window.confirm(`Are you sure you want to remove the ${lineName} line?`);
+
+
     const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
     // console.log("New Lines: ", newLinesShowing )
-    setLinesShowing(newLinesShowing)
+    if (isConfirmed) {
+      setLinesShowing(newLinesShowing)
+    }
   }
 
   function addLine() {
-    console.log("ADD BUTTON SUCESSFULLY PRESSED")
-    console.log("Current lines: ", linesShowing)
+    // console.log("ADD BUTTON SUCESSFULLY PRESSED")
+    // console.log("Current lines: ", linesShowing)
 
     let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.")
 
-    console.log("Line to add: ", lineName)
+    // console.log("Line to add: ", lineName)
 
-    if (lineName == null || lineName.trim() === ""){
-      return ;
+    if (lineName == null || lineName.trim() === "") {
+      return;
+    }
+
+    const normalizedLineName = lineName.toLowerCase().trim();
+    if (linesShowing.includes(normalizedLineName)) {
+      alert("This line is already showing.");
+      return;
     }
 
     let validLine = false;
-    for (let lineIndex = 0; lineIndex < linesInfo.length; lineIndex++){
-      if (linesInfo[lineIndex].name.toLowerCase() === lineName.toLowerCase()){
+    for (let lineIndex = 0; lineIndex < linesInfo.length; lineIndex++) {
+      if (linesInfo[lineIndex].name.toLowerCase() === lineName.toLowerCase()) {
         const newLinesShowing = [...linesShowing, lineName.toLowerCase()];
-        console.log("New Lines: ", newLinesShowing)
-        console.log("Type: ", typeof(newLinesShowing))
+        // console.log("New Lines: ", newLinesShowing)
+        // console.log("Type: ", typeof (newLinesShowing))
         setLinesShowing(newLinesShowing)
         validLine = true;
 
       }
     }
 
-    if (!validLine){
-      alert("Please enter a correct lines out of our list of lines: " +  lineList)
+    if (!validLine) {
+      alert("Please enter a correct lines out of our list of lines: " + lineList)
       addLine()
     }
     // setLinesShowing(["piccadilly", "victoria"])
@@ -126,23 +138,35 @@ function LineStatusContainer() {
   return (
     <div className="line-status-container">
       {linesInfo ? (
-        linesInfo.map((lineObject, index) => (
-          (linesShowing.includes(lineObject.name.toLowerCase()) ?
-            <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} />
-            : null)
-        ))
+        linesShowing.map((lineName, index) => {
+          const lineObject = linesInfo.find(line => line.name.toLowerCase() === lineName.toLowerCase())
+          return (lineObject ? <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
+        })
       ) : (
         <p>Loading...</p>
       )}
 
-      <div className='add-line'>
-        <button className='add-line-button' onClick={addLine}>+</button>
-      </div>
+      {linesShowing.length < 4 && (
+        <div className='add-line'>
+          <button className='add-line-button' onClick={addLine}>+</button>
+        </div>
+      )}
+
     </div>
   )
 }
 
 function LineStatusBox({ lineObject, handleRemoveLine }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
+  const severityTextColour = (lineObject.statusSeverity === 20 ? "white" : "black")
+
+
+  const toggleVisibility = () => {
+    setIsVisible(prevState => !prevState);
+  };
+
 
   return (
     <div className="line-status-box">
@@ -151,8 +175,18 @@ function LineStatusBox({ lineObject, handleRemoveLine }) {
           {lineObject.name} Line
           <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
         </div>
-        <div className="status">{lineObject.statusSeverityDescription}</div>
+        <div className="status" style={{ backgroundColor: severityBackgroundColor, color: severityTextColour }}>
+          {lineObject.statusSeverityDescription}
+          {lineObject.reason && (<button className='expand-disruption-button' onClick={toggleVisibility}>{isVisible ? 'Hide' : 'Show'}</button>)}
+
+        </div>
+
       </div>
+      {isVisible && (
+        <div className="disruption-reason">
+          {lineObject.reason}
+        </div>
+      )}
     </div>
   );
 }
