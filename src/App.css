@@ -9,15 +9,23 @@ html, body {
   text-align: center;
 }
 
+.app-title{
+  margin:0px;
+}
+
+.app-time{
+  margin:0px;
+}
+
 .App-header {
   background-color: #001c53;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(0.625rem + 1vmin);
+  font-size: calc(0.625rem + 2vmin);
   /* 10px + 2vmin */
   color: white;
+  padding:10px;
 }
 
 .weather {
