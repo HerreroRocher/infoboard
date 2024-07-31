@@ -26,11 +26,7 @@ function App() {
     <div className="App">
       <Description time={currentTime} />
       <Weather hour={currentHour} />
-      <div className="bustimebox-container">
-        <BusTimeBox stopId="490003564W" />
-        <BusTimeBox stopId="490003564E" />
-        <BusTimeBox stopId="490015187F" />
-      </div>
+      <BusTimeBoxContainer />
       <LineStatusContainer />
     </div>
   );
@@ -118,6 +114,124 @@ function Weather({ hour }) {
   );
 }
 
+function BusTimeBoxContainer() {
+  const [got, setGot] = useState(false);
+  const [stopIds, setStopIds] = useState(["490003564W", "490003564E", "490015187F"])
+
+  function setStopID(stopName) {
+
+    // expect stop name "muswell hill" "broawdfgs" "pymmes road" etc.  CASE INSENSITIVE, deal with errors
+
+    fetch(`https://api.tfl.gov.uk/StopPoint/Search?query=${encodeURIComponent(stopName)}&modes=bus`)
+      .then(response => response.json())
+      .then(data => {
+        // Assuming the first result is the correct one
+        // console.log('Data:', data);
+        // const stopPoint = data.matches[0];
+        // console.log('Stop Point:', stopPoint);
+        const nameMatches = data.matches;
+        console.log("Name matches:", nameMatches)
+
+        let nameMatchesStr = ""
+        for (const nameObj of nameMatches) {
+          nameMatchesStr += nameObj.name + ", "
+        }
+        nameMatchesStr = nameMatchesStr.slice(0, -2)
+
+        // console.log("Name matches string:", nameMatchesStr)
+
+        const name = prompt("Please enter the specific bus stop: " + nameMatchesStr)
+
+        // const name = "Muswell Hill Road"
+
+        // console.log(nameMatches.filter(nameMatch => nameMatch.name === name))
+        const locID = nameMatches.filter(nameMatch => nameMatch.name === name)[0].id
+
+        // console.log("LocID:", locID)
+
+        fetch(`https://api.tfl.gov.uk/StopPoint/${locID}`)
+          .then(response => response.json())
+          .then(data => {
+
+
+            data = data.children
+            // console.log("Data:", data)
+            let busStops = []
+            data.map((child, index) => {
+              busStops.push({
+                name: child.commonName,
+                naptanId: child.naptanId,
+                stopLetter: child.stopLetter,
+                towards: child.additionalProperties[1].value
+              })
+            })
+
+
+            console.log("Bus Stops:", busStops)
+
+            let stopList = ""
+            let stopLettersStr = "("
+
+            for (const busStop of busStops) {
+              stopList += `\nStop ${busStop.stopLetter} - Towards ${busStop.towards}`
+              stopLettersStr += `${busStop.stopLetter}, `
+            }
+
+            stopLettersStr = stopLettersStr.slice(0, -2)
+            stopLettersStr += ")"
+
+            const indicator = prompt(`Please enter the key ${stopLettersStr} of the bus stop you would like to add:${stopList}`)
+
+
+            let id = ""
+
+            for (const busStop of busStops) {
+              if (busStop.stopLetter.toLowerCase() === indicator.toLowerCase()) {
+                id = busStop.naptanId
+              }
+            }
+            console.log("ID:", id);
+
+            if (id) {
+              const newStopIds = [...stopIds, id];
+              setLinesShowing(newStopIds)
+            }
+
+
+
+          })
+          .catch(error => {
+            console.error('Error fetching stop point naptanID:', error);
+          })
+
+
+
+
+      })
+      .catch(error => {
+        console.error('Error fetching stop point ID:', error);
+      })
+
+
+
+
+
+    setGot(true)
+
+  }
+
+  if (!got) { console.log("Stop ID:", getStopID()) }
+
+
+  return (
+    <div className="bustimebox-container">
+      <BusTimeBox stopId="490003564W" />
+      <BusTimeBox stopId="490003564E" />
+      <BusTimeBox stopId="490015187F" />
+    </div>
+  )
+}
+
 function BusTimeBox({ stopId }) {
   const [busTimes, setBusTimes] = useState([]); // State for bus times
   const contentRef = useRef(null); // Ref to access the bustimebox-content div
@@ -154,7 +268,7 @@ function BusTimeBox({ stopId }) {
         console.error('Error fetching bus times:', error);
       });
 
-      // console.log("Bus times updated!")
+    // console.log("Bus times updated!")
   };
 
   useEffect(() => {
@@ -166,7 +280,7 @@ function BusTimeBox({ stopId }) {
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [stopId]); 
+  }, [stopId]);
 
   useEffect(() => {
     const contentHeight = contentRef.current.clientHeight; // Get the height of the bustimebox-content div
@@ -220,58 +334,58 @@ function LineStatusContainer() {
 
   const fetchLineInfo = () => {
     fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status")
-    .then((response) => {
-      // console.log("Unparsed response: ", response)
-      return response.json();
-    })
-    .then((data) => {
-      // console.log("JSON Parsed response: ", data)
+      .then((response) => {
+        // console.log("Unparsed response: ", response)
+        return response.json();
+      })
+      .then((data) => {
+        // console.log("JSON Parsed response: ", data)
 
-      let allLineStatuses = [];
+        let allLineStatuses = [];
 
-      data.map((datum, index) => {
-        if (datum) {
-          const updatedLineStatus = {
-            name: datum.name,
-            // crowding: datum.crowding,
-            // disruptions: datum.disruptions,
-            id: datum.id,
-            statusSeverity: datum.lineStatuses[0].statusSeverity,
-            statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
-            reason: datum.lineStatuses[0].reason
-          };
+        data.map((datum, index) => {
+          if (datum) {
+            const updatedLineStatus = {
+              name: datum.name,
+              // crowding: datum.crowding,
+              // disruptions: datum.disruptions,
+              id: datum.id,
+              statusSeverity: datum.lineStatuses[0].statusSeverity,
+              statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
+              reason: datum.lineStatuses[0].reason
+            };
 
-          // console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
-          allLineStatuses.push(updatedLineStatus)
+            // console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
+            allLineStatuses.push(updatedLineStatus)
+          }
+        })
+
+        setLinesInfo(allLineStatuses);
+
+        let lines = ""
+
+        for (const line of allLineStatuses) {
+          lines += line.name + ", "
         }
+
+        lines = lines.slice(0, -2)
+
+        setLineList(lines)
+        // console.log("Line LIST", lines)
+
+        // lineOptions = allLineStatuses.map((lineStatus, index) => (
+
+        // ))
+
+        // console.log("All lines statuses:", allLineStatuses);
+
+        // console.log("Line Info fetched and updated!")
+
       })
 
-      setLinesInfo(allLineStatuses);
+      .catch(error => console.error('Error fetching line statuses:', error));
 
-      let lines = ""
-
-      for (const line of allLineStatuses) {
-        lines += line.name + ", "
-      }
-
-      lines = lines.slice(0, -2)
-
-      setLineList(lines)
-      // console.log("Line LIST", lines)
-
-      // lineOptions = allLineStatuses.map((lineStatus, index) => (
-
-      // ))
-
-      // console.log("All lines statuses:", allLineStatuses);
-
-      // console.log("Line Info fetched and updated!")
-
-    })
-
-    .catch(error => console.error('Error fetching line statuses:', error));
-    
-  }; 
+  };
 
 
 
@@ -280,7 +394,7 @@ function LineStatusContainer() {
     // Initial fetch
     fetchLineInfo();
 
-    const intervalId = setInterval(fetchLineInfo, 6000); 
+    const intervalId = setInterval(fetchLineInfo, 6000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
