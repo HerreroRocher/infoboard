@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; // Import useEffect
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
@@ -13,14 +13,13 @@ function App() {
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       setCurrentTime(`${hours}:${minutes}:${seconds}`);
-      setCurrentHour(hoursInt)
+      setCurrentHour(hoursInt);
     };
 
     updateTime();
     const intervalId = setInterval(updateTime, 1000);
 
-
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -28,15 +27,14 @@ function App() {
       <Description time={currentTime} />
       <Weather hour={currentHour} />
       <div className="bustimebox-container">
-        <BusTimeBox stopId="490003564W" /> {/* Northbound stop ID */}
-        <BusTimeBox stopId="490003564E" /> {/* Southbound stop ID */}
-        <BusTimeBox stopId="490015187F" /> {/* Eastbound stop ID */}
+        <BusTimeBox stopId="490003564W" />
+        <BusTimeBox stopId="490003564E" />
+        <BusTimeBox stopId="490015187F" />
       </div>
       <LineStatusContainer />
     </div>
   );
 }
-
 
 function Description({ time }) {
   return (
@@ -48,8 +46,7 @@ function Description({ time }) {
 }
 
 function Weather({ hour }) {
-  const [conditions, setConditions] = useState([]); // State for bus times
-
+  const [conditions, setConditions] = useState([]);
 
   const boxes = conditions.slice(hour, hour + 18).map((condition, index) => (
     <div key={index} className="weather-box">
@@ -63,76 +60,70 @@ function Weather({ hour }) {
   ));
 
   function formatTime(datehourmin, int) {
-    const localTimeFull = datehourmin
+    const localTimeFull = datehourmin;
     // console.log("localTimeFull: ", localTimeFull)
     const spaceIndex = localTimeFull.indexOf(' ');
-    const localTimeHourMin = localTimeFull.slice(spaceIndex + 1)
+    const localTimeHourMin = localTimeFull.slice(spaceIndex + 1);
     // console.log("localTimeHourMin: ", localTimeHourMin)
     const colonIndex = localTimeHourMin.indexOf(':');
-    const localTimeHour = localTimeHourMin.slice(0, colonIndex)
-    // console.log("localTimeHour: ", localTimeHour)  
+    const localTimeHour = localTimeHourMin.slice(0, colonIndex);
+    // console.log("localTimeHour: ", localTimeHour)
 
-    const localTimeHourStr = (localTimeHour.length == 1 ? "0" + localTimeHour : localTimeHour)
-    const localTimeHourInt = parseInt(localTimeHourStr[0] == "0" ? localTimeHourStr[1] : localTimeHourStr)
-    // console.log(localTimeHour[0] == "0")
+    const localTimeHourStr = (localTimeHour.length === 1 ? "0" + localTimeHour : localTimeHour);
+    const localTimeHourInt = parseInt(localTimeHourStr[0] === "0" ? localTimeHourStr[1] : localTimeHourStr);
+    // console.log(localTimeHour[0] === "0")
     // console.log(localTimeHour)
     // console.log(localTimeHour[1])
 
     // console.log("localTimeHourStr", localTimeHourStr)
     // console.log("localTimeHourInt", localTimeHourInt)
 
-    return (int ? localTimeHourInt : localTimeHourStr)
+    return (int ? localTimeHourInt : localTimeHourStr);
   }
-
 
   useEffect(() => {
     fetch("https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=London&days=2&aqi=no")
       .then(response => {
         // console.log("Raw response: ", response)
-        return response.json()
+        return response.json();
       })
       .then(data => {
         // console.log("Parsed Response", data)
         let conditions = [];
         for (let x = 0; x < 2; x++) {
-          const hourlyData = data.forecast.forecastday[x].hour
+          const hourlyData = data.forecast.forecastday[x].hour;
           for (let i = 0; i < hourlyData.length; i++) {
-            const time = hourlyData[i].time
-            const conditionText = hourlyData[i].condition.text
-            const conditionIcon = hourlyData[i].condition.icon
+            const time = hourlyData[i].time;
+            const conditionText = hourlyData[i].condition.text;
+            const conditionIcon = hourlyData[i].condition.icon;
 
             const hourObject = {
               "time": time,
               "conditionText": conditionText,
               "conditionIcon": conditionIcon
-            }
+            };
 
-            conditions.push(hourObject)
-
+            conditions.push(hourObject);
           }
-
         }
 
         // console.log("Conditions: ", conditions)
-        setConditions(conditions)
-
-      })
+        setConditions(conditions);
+      });
   }, []);
 
   return (
     <div className="weather">
       {boxes}
     </div>
-  )
+  );
 }
 
 function BusTimeBox({ stopId }) {
-  const [busTimes, setBusTimes] = useState([]); // State for bus times
-  const contentRef = useRef(null); // Ref to access the bustimebox-content div
-
+  const [busTimes, setBusTimes] = useState([]);
+  const contentRef = useRef(null);
 
   const fetchBusTimes = () => {
-
     // console.log("Fetching bus times...");
 
     // Log the initial fetch request (Note: This will log the Promise, not the actual data)
@@ -166,30 +157,27 @@ function BusTimeBox({ stopId }) {
         console.error('Error fetching bus times:', error);
       });
 
-      // console.log("Bus times updated!")
-  }; 
-
+    // console.log("Bus times updated!")
+  };
 
   useEffect(() => {
     // Initial fetch
     fetchBusTimes();
 
-    // Set up an interval to fetch data every 30 seconds
-    const intervalId = setInterval(fetchBusTimes, 15000); // 30000 ms = 30 seconds
+    // Set up an interval to fetch data every 15 seconds
+    const intervalId = setInterval(fetchBusTimes, 15000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [stopId]); // Dependency array includes stopId to refetch when it changes
+  }, [stopId]);
 
   useEffect(() => {
-    const contentHeight = contentRef.current.clientHeight; // Get the height of the bustimebox-content div
-    const busTimeHeight = 50; // Set the height of a single BusTime component in px
-    const maxBusTimes = Math.floor(contentHeight / busTimeHeight); // Calculate the maximum number of BusTime components that can fit
+    const contentHeight = contentRef.current.clientHeight;
+    const busTimeHeight = 50;
+    const maxBusTimes = Math.floor(contentHeight / busTimeHeight);
 
-    setBusTimes(busTimes.slice(0, maxBusTimes + 4)); // Render only the max number of BusTime components
+    setBusTimes(busTimes.slice(0, maxBusTimes + 4));
   }, [busTimes.length]);
-
-
 
   return (
     <div className="bustimebox">
@@ -200,7 +188,6 @@ function BusTimeBox({ stopId }) {
             <p className="bus-towards"> towards {busTimes[0].towards} </p>
           </>
         ) : <p>Loading bus...</p>}
-
       </div>
       <div className="bustimebox-content" ref={contentRef}>
         {busTimes.map((bus, index) => (
@@ -208,7 +195,7 @@ function BusTimeBox({ stopId }) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 function BusTime({ busName, busTime, destinationName }) {
@@ -217,7 +204,7 @@ function BusTime({ busName, busTime, destinationName }) {
       <div className='busName'>{busName} to {destinationName} </div>
       <div className='busTime'>{busTime === "0 mins" ? "due" : (busTime === "1 mins" ? "1 min" : busTime)}</div>
     </div>
-  )
+  );
 }
 
 function LineStatusContainer() {
@@ -231,111 +218,66 @@ function LineStatusContainer() {
   const [lineList, setLineList] = useState("failed");
   /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
-
-
-
-
-
-
-
-
-
-
-
-
   const fetchLineInfo = () => {
     fetch(`https://api.tfl.gov.uk/Line/Mode/tube/Status`)
-    .then((response) => {
-      // console.log("Unparsed response: ", response)
-      return response.json()
-    })
-    .then((data) => {
-      // console.log("JSON Parsed response: ", data)
-
-      let allLineStatuses = [];
-
-      data.map((datum, index) => {
-        if (datum) {
-          const updatedLineStatus = {
-            name: datum.name,
-            // crowding: datum.crowding,
-            // disruptions: datum.disruptions,
-            id: datum.id,
-            statusSeverity: datum.lineStatuses[0].statusSeverity,
-            statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
-            reason: datum.lineStatuses[0].reason
-          };
-
-          // console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
-          allLineStatuses.push(updatedLineStatus)
-        }
+      .then((response) => {
+        // console.log("Unparsed response: ", response)
+        return response.json();
       })
+      .then((data) => {
+        // console.log("JSON Parsed response: ", data)
 
-      setLinesInfo(allLineStatuses);
+        let allLineStatuses = [];
 
-      let lines = ""
+        data.map((datum, index) => {
+          if (datum) {
+            const updatedLineStatus = {
+              name: datum.name,
+              id: datum.id,
+              statusSeverity: datum.lineStatuses[0].statusSeverity,
+              statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
+              reason: datum.lineStatuses[0].reason
+            };
 
-      for (const line of allLineStatuses) {
-        lines += line.name + ", "
-      }
+            allLineStatuses.push(updatedLineStatus);
+          }
+        });
 
-      lines = lines.slice(0, -2)
+        // console.log("allLineStatuses: ", allLineStatuses)
+        setLinesInfo(allLineStatuses);
 
-      setLineList(lines)
-      // console.log("Line LIST", lines)
+        let lines = "";
 
-      // lineOptions = allLineStatuses.map((lineStatus, index) => (
+        for (const line of allLineStatuses) {
+          lines += line.name + ", ";
+        }
 
-      // ))
+        lines = lines.slice(0, -2);
 
-      // console.log("All lines statuses:", allLineStatuses);
-
-      // console.log("Line Info fetched and updated!")
-
-    })
-
-    .catch(error => console.error('Error fetching line statuses:', error));
-    
-  }; 
-
-
-
+        setLineList(lines);
+      })
+      .catch(error => console.error('Error fetching line statuses:', error));
+  };
 
   useEffect(() => {
-    // Initial fetch
     fetchLineInfo();
 
-    const intervalId = setInterval(fetchLineInfo, 6000); 
+    const intervalId = setInterval(fetchLineInfo, 6000);
 
-    // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [lineList]); // Dependency array includes stopId to refetch when it changes
-
-
-
+  }, [lineList]);
 
   function removeLine(lineName) {
-    // console.log("REMOVE BUTTON SUCESSFULLY PRESSED")
-    // console.log("Current lines: ", linesShowing)
-    // console.log("Line to remove: ", lineName)
-
     const isConfirmed = window.confirm(`Are you sure you want to remove the ${lineName} line?`);
 
-
-    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
-    // console.log("New Lines: ", newLinesShowing )
+    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase());
     if (isConfirmed) {
-      setLinesShowing(newLinesShowing)
+      setLinesShowing(newLinesShowing);
     }
   }
 
   function addLine() {
-    // console.log("ADD BUTTON SUCESSFULLY PRESSED")
-    // console.log("Current lines: ", linesShowing)
-
-    let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.")
-
-    // console.log("Line to add: ", lineName)
+    let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.");
 
     if (lineName == null || lineName.trim() === "") {
       return;
@@ -350,77 +292,35 @@ function LineStatusContainer() {
     let validLine = false;
     for (let lineIndex = 0; lineIndex < linesInfo.length; lineIndex++) {
       if (linesInfo[lineIndex].name.toLowerCase() === lineName.toLowerCase()) {
-        const newLinesShowing = [...linesShowing, lineName.toLowerCase()];
-        // console.log("New Lines: ", newLinesShowing)
-        // console.log("Type: ", typeof (newLinesShowing))
-        setLinesShowing(newLinesShowing)
+        const newLinesShowing = [...linesShowing, normalizedLineName];
+        setLinesShowing(newLinesShowing);
         validLine = true;
-
+        break;
       }
     }
 
     if (!validLine) {
-      alert("Please enter a correct lines out of our list of lines: " + lineList)
-      addLine()
+      alert("Invalid line name.");
     }
-    // setLinesShowing(["piccadilly", "victoria"])
   }
 
   return (
     <div className="line-status-container">
-      {linesInfo ? (
-        linesShowing.map((lineName, index) => {
-          const lineObject = linesInfo.find(line => line.name.toLowerCase() === lineName.toLowerCase())
-          return (lineObject ? <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
-        })
-      ) : (
-        <p>Loading...</p>
-      )}
-
-      {linesShowing.length < 4 && (
-        <div className='add-line'>
-          <button className='add-line-button' onClick={addLine}>+</button>
-        </div>
-      )}
-
-    </div>
-  )
-}
-
-function LineStatusBox({ lineObject, handleRemoveLine }) {
-  const [isVisible, setIsVisible] = useState(true);
-
-  const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
-  const severityTextColour = (lineObject.statusSeverity === 20 ? "white" : "black")
-
-
-  const toggleVisibility = () => {
-    setIsVisible(prevState => !prevState);
-  };
-
-
-  return (
-    <div className="line-status-box">
-      <div className="line-status-content">
-        <div className="line-name">
-          {lineObject.name} Line
-          <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
-        </div>
-        <div className="status" style={{ backgroundColor: severityBackgroundColor, color: severityTextColour }}>
-          {lineObject.statusSeverityDescription}
-          {lineObject.reason && (<button className='expand-disruption-button' onClick={toggleVisibility}>{isVisible ? 'Hide' : 'Show'}</button>)}
-
-        </div>
-
+      <div className="line-status-header">
+        <h2>Tube Line Status</h2>
+        <button onClick={addLine}>Add Line</button>
       </div>
-      {isVisible && (
-        <div className="disruption-reason">
-          {lineObject.reason}
-        </div>
-      )}
+      <div className="line-status-list">
+        {linesInfo.filter(line => linesShowing.includes(line.name.toLowerCase())).map((line, index) => (
+          <div key={index} className={`line-status-item ${line.statusSeverity.toLowerCase()}`}>
+            <div className="line-name">{line.name}</div>
+            <div className="line-status">{line.statusSeverityDescription}</div>
+            <button onClick={() => removeLine(line.name)}>Remove</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-
 
 export default App;
