@@ -46,7 +46,7 @@ function Description({ time }) {
 }
 
 function Weather({ hour }) {
-  const [conditions, setConditions] = useState([]);
+  const [conditions, setConditions] = useState([]); // State for weather conditions
 
   const boxes = conditions.slice(hour, hour + 18).map((condition, index) => (
     <div key={index} className="weather-box">
@@ -102,7 +102,6 @@ function Weather({ hour }) {
               "conditionText": conditionText,
               "conditionIcon": conditionIcon
             };
-
             conditions.push(hourObject);
           }
         }
@@ -120,17 +119,15 @@ function Weather({ hour }) {
 }
 
 function BusTimeBox({ stopId }) {
-  const [busTimes, setBusTimes] = useState([]);
-  const contentRef = useRef(null);
+  const [busTimes, setBusTimes] = useState([]); // State for bus times
+  const contentRef = useRef(null); // Ref to access the bustimebox-content div
+
 
   const fetchBusTimes = () => {
     // console.log("Fetching bus times...");
 
-    // Log the initial fetch request (Note: This will log the Promise, not the actual data)
-    // console.log("Initial fetch request:", fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`).then(response => response.json()));
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`)    // Fetch bus times from TfL API
 
-    // Fetch bus times from TfL API
-    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`)
       .then(response => {
         // Log the raw response
         // console.log("Raw response:", response);
@@ -157,27 +154,29 @@ function BusTimeBox({ stopId }) {
         console.error('Error fetching bus times:', error);
       });
 
-    // console.log("Bus times updated!")
+      // console.log("Bus times updated!")
   };
 
   useEffect(() => {
     // Initial fetch
     fetchBusTimes();
 
-    // Set up an interval to fetch data every 15 seconds
+    // interval to fetch data every 30 seconds
     const intervalId = setInterval(fetchBusTimes, 15000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [stopId]);
+  }, [stopId]); 
 
   useEffect(() => {
-    const contentHeight = contentRef.current.clientHeight;
-    const busTimeHeight = 50;
-    const maxBusTimes = Math.floor(contentHeight / busTimeHeight);
+    const contentHeight = contentRef.current.clientHeight; // Get the height of the bustimebox-content div
+    const busTimeHeight = 50; // Set the height of a single BusTime component in px
+    const maxBusTimes = Math.floor(contentHeight / busTimeHeight); // Calculate the maximum number of BusTime components that can fit
 
-    setBusTimes(busTimes.slice(0, maxBusTimes + 4));
+    setBusTimes(busTimes.slice(0, maxBusTimes + 4)); // Render only the max number of BusTime components
   }, [busTimes.length]);
+
+
 
   return (
     <div className="bustimebox">
@@ -188,6 +187,7 @@ function BusTimeBox({ stopId }) {
             <p className="bus-towards"> towards {busTimes[0].towards} </p>
           </>
         ) : <p>Loading bus...</p>}
+
       </div>
       <div className="bustimebox-content" ref={contentRef}>
         {busTimes.map((bus, index) => (
@@ -195,7 +195,7 @@ function BusTimeBox({ stopId }) {
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 function BusTime({ busName, busTime, destinationName }) {
@@ -204,7 +204,7 @@ function BusTime({ busName, busTime, destinationName }) {
       <div className='busName'>{busName} to {destinationName} </div>
       <div className='busTime'>{busTime === "0 mins" ? "due" : (busTime === "1 mins" ? "1 min" : busTime)}</div>
     </div>
-  );
+  )
 }
 
 function LineStatusContainer() {
@@ -219,65 +219,95 @@ function LineStatusContainer() {
   /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
   const fetchLineInfo = () => {
-    fetch(`https://api.tfl.gov.uk/Line/Mode/tube/Status`)
-      .then((response) => {
-        // console.log("Unparsed response: ", response)
-        return response.json();
-      })
-      .then((data) => {
-        // console.log("JSON Parsed response: ", data)
+    fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status")
+    .then((response) => {
+      // console.log("Unparsed response: ", response)
+      return response.json();
+    })
+    .then((data) => {
+      // console.log("JSON Parsed response: ", data)
 
-        let allLineStatuses = [];
+      let allLineStatuses = [];
 
-        data.map((datum, index) => {
-          if (datum) {
-            const updatedLineStatus = {
-              name: datum.name,
-              id: datum.id,
-              statusSeverity: datum.lineStatuses[0].statusSeverity,
-              statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
-              reason: datum.lineStatuses[0].reason
-            };
+      data.map((datum, index) => {
+        if (datum) {
+          const updatedLineStatus = {
+            name: datum.name,
+            // crowding: datum.crowding,
+            // disruptions: datum.disruptions,
+            id: datum.id,
+            statusSeverity: datum.lineStatuses[0].statusSeverity,
+            statusSeverityDescription: datum.lineStatuses[0].statusSeverityDescription,
+            reason: datum.lineStatuses[0].reason
+          };
 
-            allLineStatuses.push(updatedLineStatus);
-          }
-        });
-
-        // console.log("allLineStatuses: ", allLineStatuses)
-        setLinesInfo(allLineStatuses);
-
-        let lines = "";
-
-        for (const line of allLineStatuses) {
-          lines += line.name + ", ";
+          // console.log(updatedLineStatus.name, "Line status:", updatedLineStatus)
+          allLineStatuses.push(updatedLineStatus)
         }
-
-        lines = lines.slice(0, -2);
-
-        setLineList(lines);
       })
-      .catch(error => console.error('Error fetching line statuses:', error));
-  };
+
+      setLinesInfo(allLineStatuses);
+
+      let lines = ""
+
+      for (const line of allLineStatuses) {
+        lines += line.name + ", "
+      }
+
+      lines = lines.slice(0, -2)
+
+      setLineList(lines)
+      // console.log("Line LIST", lines)
+
+      // lineOptions = allLineStatuses.map((lineStatus, index) => (
+
+      // ))
+
+      // console.log("All lines statuses:", allLineStatuses);
+
+      // console.log("Line Info fetched and updated!")
+
+    })
+
+    .catch(error => console.error('Error fetching line statuses:', error));
+    
+  }; 
+
+
+
 
   useEffect(() => {
+    // Initial fetch
     fetchLineInfo();
 
-    const intervalId = setInterval(fetchLineInfo, 6000);
+    const intervalId = setInterval(fetchLineInfo, 6000); 
 
+    // Clear interval on component unmount
     return () => clearInterval(intervalId);
   }, [lineList]);
 
   function removeLine(lineName) {
+    // console.log("REMOVE BUTTON SUCESSFULLY PRESSED")
+    // console.log("Current lines: ", linesShowing)
+    // console.log("Line to remove: ", lineName)
+
     const isConfirmed = window.confirm(`Are you sure you want to remove the ${lineName} line?`);
 
-    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase());
+
+    const newLinesShowing = linesShowing.filter(lineNameShowing => lineNameShowing.toLowerCase() !== lineName.toLowerCase())
+    // console.log("New Lines: ", newLinesShowing )
     if (isConfirmed) {
-      setLinesShowing(newLinesShowing);
+      setLinesShowing(newLinesShowing)
     }
   }
 
   function addLine() {
-    let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.");
+    // console.log("ADD BUTTON SUCESSFULLY PRESSED")
+    // console.log("Current lines: ", linesShowing)
+
+    let lineName = prompt("Enter a line name you would like to add (Piccadilly, Victoria, Hammersmith & City, etc.")
+
+    // console.log("Line to add: ", lineName)
 
     if (lineName == null || lineName.trim() === "") {
       return;
@@ -292,35 +322,76 @@ function LineStatusContainer() {
     let validLine = false;
     for (let lineIndex = 0; lineIndex < linesInfo.length; lineIndex++) {
       if (linesInfo[lineIndex].name.toLowerCase() === lineName.toLowerCase()) {
-        const newLinesShowing = [...linesShowing, normalizedLineName];
-        setLinesShowing(newLinesShowing);
+        const newLinesShowing = [...linesShowing, lineName.toLowerCase()];
+        // console.log("New Lines: ", newLinesShowing)
+        // console.log("Type: ", typeof (newLinesShowing))
+        setLinesShowing(newLinesShowing)
         validLine = true;
-        break;
       }
     }
 
     if (!validLine) {
-      alert("Invalid line name.");
+      alert("Please enter a correct lines out of our list of lines: " + lineList)
+      addLine()
     }
+    // setLinesShowing(["piccadilly", "victoria"])
   }
 
   return (
     <div className="line-status-container">
-      <div className="line-status-header">
-        <h2>Tube Line Status</h2>
-        <button onClick={addLine}>Add Line</button>
+      {linesInfo ? (
+        linesShowing.map((lineName, index) => {
+          const lineObject = linesInfo.find(line => line.name.toLowerCase() === lineName.toLowerCase())
+          return (lineObject ? <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
+        })
+      ) : (
+        <p>Loading...</p>
+      )}
+
+      {linesShowing.length < 4 && (
+        <div className='add-line'>
+          <button className='add-line-button' onClick={addLine}>+</button>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
+function LineStatusBox({ lineObject, handleRemoveLine }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
+  const severityTextColour = (lineObject.statusSeverity === 20 ? "white" : "black")
+
+
+  const toggleVisibility = () => {
+    setIsVisible(prevState => !prevState);
+  };
+
+
+  return (
+    <div className="line-status-box">
+      <div className="line-status-content">
+        <div className="line-name">
+          {lineObject.name} Line
+          <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
+        </div>
+        <div className="status" style={{ backgroundColor: severityBackgroundColor, color: severityTextColour }}>
+          {lineObject.statusSeverityDescription}
+          {lineObject.reason && (<button className='expand-disruption-button' onClick={toggleVisibility}>{isVisible ? 'Hide' : 'Show'}</button>)}
+
+        </div>
+
       </div>
-      <div className="line-status-list">
-        {linesInfo.filter(line => linesShowing.includes(line.name.toLowerCase())).map((line, index) => (
-          <div key={index} className={`line-status-item ${line.statusSeverity.toLowerCase()}`}>
-            <div className="line-name">{line.name}</div>
-            <div className="line-status">{line.statusSeverityDescription}</div>
-            <button onClick={() => removeLine(line.name)}>Remove</button>
-          </div>
-        ))}
-      </div>
+      {isVisible && (
+        <div className="disruption-reason">
+          {lineObject.reason}
+        </div>
+      )}
     </div>
   );
 }
+
 
 export default App;
