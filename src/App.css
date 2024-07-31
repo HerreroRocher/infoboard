@@ -131,7 +131,49 @@ html, body {
 .bustimebox-name .bus-stop,
 .bustimebox-name .bus-towards {
   margin-bottom: 0.2em;
-  /* Adjusts the space between the lines */
+}
+
+.bustimebox-name{
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  flex: 1; 
+}
+
+.bustimebox-header{
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 10px;
+  background-color: rgb(145, 202, 221);
+
+}
+
+
+
+.remove-bus-button {
+  margin-left: 0px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.5rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+
+.bustimebox-header:hover .remove-bus-button {
+  display: flex;
+}
+
+.remove-bus-button:hover {
+  background-color: darkred; 
 }
 
 .condition-icon {

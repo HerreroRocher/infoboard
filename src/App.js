@@ -155,7 +155,7 @@ function BusTimeBoxContainer() {
 
 
             data = data.children
-            // console.log("Data:", data)
+            console.log("Data:", data)
             let busStops = []
             data.map((child, index) => {
               busStops.push({
@@ -194,7 +194,7 @@ function BusTimeBoxContainer() {
 
             if (id) {
               const newStopIds = [...stopIds, id];
-              setLinesShowing(newStopIds)
+              setStopIds(newStopIds)
             }
 
 
@@ -220,14 +220,21 @@ function BusTimeBoxContainer() {
 
   }
 
-  if (!got) { console.log("Stop ID:", getStopID()) }
+  function handleAddBusStop() {
+    const stopName = prompt("Enter the name of the bus stop you would like to add:")
+
+    if (stopName) {
+      setStopID(stopName)
+    }
+  }
 
 
   return (
     <div className="bustimebox-container">
-      <BusTimeBox stopId="490003564W" />
-      <BusTimeBox stopId="490003564E" />
-      <BusTimeBox stopId="490015187F" />
+      {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} />)}
+      <div className='add-line'>
+        <button className='add-line-button' onClick={handleAddBusStop}>+</button>
+      </div>
     </div>
   )
 }
@@ -294,14 +301,17 @@ function BusTimeBox({ stopId }) {
 
   return (
     <div className="bustimebox">
-      <div className="bustimebox-name">
-        {busTimes.length > 0 ? (
-          <>
-            <p className="bus-stop">Stop {busTimes[0].platformName}: {busTimes[0].stationName} </p>
-            <p className="bus-towards"> towards {busTimes[0].towards} </p>
-          </>
-        ) : <p>Loading bus...</p>}
+      <div className='bustimebox-header'>
+        <div className="bustimebox-name">
+          {busTimes.length > 0 ? (
+            <>
+              <p className="bus-stop">Stop {busTimes[0].platformName}: {busTimes[0].stationName} </p>
+              <p className="bus-towards"> towards {busTimes[0].towards} </p>
+            </>
+          ) : <p>Loading bus...</p>}
 
+        </div>
+        <button className="remove-bus-button" onClick={null}>-</button>
       </div>
       <div className="bustimebox-content" ref={contentRef}>
         {busTimes.map((bus, index) => (
