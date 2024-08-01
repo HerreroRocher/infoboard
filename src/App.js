@@ -44,17 +44,6 @@ function Description({ time }) {
 function Weather({ hour }) {
   const [conditions, setConditions] = useState([]); // State for weather conditions
 
-  const boxes = conditions.slice(hour, hour + 18).map((condition, index) => (
-    <div key={index} className="weather-box">
-      <div className="weather-box-hour">
-        <b>{formatTime(condition.time, false)}</b>
-      </div>
-      <div className="weather-box-weather">
-        <img className='condition-icon' src={condition.conditionIcon} alt={condition.conditionText}></img>
-      </div>
-    </div>
-  ));
-
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
     // console.log("localTimeFull: ", localTimeFull)
@@ -102,14 +91,25 @@ function Weather({ hour }) {
           }
         }
 
+        console.log("RAN")
+
         // console.log("Conditions: ", conditions)
         setConditions(conditions);
       });
-  }, []);
+  }, [hour]);
 
   return (
     <div className="weather">
-      {boxes}
+      {conditions.slice(hour, hour + 18).map((condition, index) => (
+    <div key={index} className="weather-box">
+      <div className="weather-box-hour">
+        <b>{formatTime(condition.time, false)}</b>
+      </div>
+      <div className="weather-box-weather">
+        <img className='condition-icon' src={condition.conditionIcon} alt={condition.conditionText}></img>
+      </div>
+    </div>
+  ))}
     </div>
   );
 }
