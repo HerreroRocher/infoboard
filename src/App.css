@@ -87,12 +87,17 @@ html, body {
   align-items: center;
   justify-content: center;
   outline: none;
+  border-radius: 0.3125rem;
+
 }
 .add-bus-button-container{
-  background-color: pink;
   height:50vh;
   margin: 0 10px;
 
+}
+
+.add-bus-button:hover {
+  background-color: darkgreen;
 }
 
 
