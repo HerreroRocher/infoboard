@@ -127,11 +127,23 @@ function Weather({ hour }) {
 
   function addPreference() {
     if (allPreferences.length > 0) {
-      const preference = prompt("Please enter a weather parameter you would like to add:\n" + allPreferences.join(", "))
+      let preference = prompt("Please enter a weather parameter you would like to add:\n" + allPreferences.join(", "))
+
+      if (preference.length === 0) {
+        return;
+      } else {
+        if (preference.toLowerCase() === "uv index") {
+          preference = preference.charAt(0).toUpperCase() + preference.charAt(1).toUpperCase() + preference.slice(2);
+        } else {
+          preference = preference.charAt(0).toUpperCase() + preference.slice(1);
+        }
+      }
+
+
       if (allPreferences.includes(preference)) {
         setPreferences([...preferences, preference])
       } else {
-        alert(preference, "isn't one of our available preferences.")
+        alert("'" + preference + "' isn't one of our available preferences.")
       }
     }
   }
