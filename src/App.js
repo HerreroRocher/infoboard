@@ -48,7 +48,8 @@ function Description({ time, date }) {
 function Weather({ hour }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [preferences, setPreferences] = useState(["Condition icon", "Temperature"])
-  const [allPreferences, setAllPreferences] = useState();
+  const [allPreferences, setAllPreferences] = useState([]);
+  const [hoursShowing, setHoursShowing] = useState(10)
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -146,19 +147,33 @@ function Weather({ hour }) {
     return () => clearInterval(intervalId);
   }, [preferences]);
 
+  function addHour() {
+    const newHoursShowing = hoursShowing + 1
+    setHoursShowing(newHoursShowing)
+  }
 
+
+  function removeLastHour() {
+    const newHoursShowing = hoursShowing - 1
+    setHoursShowing(newHoursShowing)
+  }
 
 
   return (
     <div className='weather-container'>
       <div className="weather">
-        {forecast.slice(hour - 1, hour + 17).map((forecastHourItem, index) => {
+        {forecast.slice(hour - 1, hour + hoursShowing).map((forecastHourItem, index) => {
+
+          const last = (index === hoursShowing)
 
           const first = Boolean(!index);
           return (
             <div key={index} className="weather-box" >
               <div className="weather-box-hour">
                 <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
+                {last && (
+                  <button className="remove-weather-button" onClick={removeLastHour}>-</button>
+                )}
               </div>
 
               {preferences.includes("Condition icon") &&
@@ -190,7 +205,9 @@ function Weather({ hour }) {
 
         })}
 
-
+        {hoursShowing <= 24 && (
+          <button className='add-hour-button' onClick={addHour}>+</button>
+        )}
       </div >
       <button className='add-preference-button' onClick={addPreference}>+</button>
     </div>
