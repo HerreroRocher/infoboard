@@ -213,7 +213,8 @@ function Weather({ hour }) {
                   </div>
                 ) : (
                   <div key={index} className="weather-box-conditions">
-                    <p className='condition-name'>{first ? preference + ":" : forecastHourItem[preference]}
+                    <p className='condition-name'>
+                      {first ? preference + ":" : forecastHourItem[preference]}
                       {first && (
                         <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
                       )}

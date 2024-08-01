@@ -41,18 +41,32 @@ body {
   color: white;
   width: 100%;
   margin: 0px;
-  border-radius: 0.3125rem;
+  /* border-radius: 0.3125rem; */
   border: none;
   cursor: pointer;
+  display: none;
 }
 
 
 .add-hour-button{
   background-color: rgb(12, 151, 12);
-  border: none;
+  /* border: none; */
+  border: 0.2rem solid rgb(180, 153, 253);
+  /* border-top: 0.2rem solid rgb(180, 153, 253); */
+  border-radius:15%;
   color: white;
   cursor: pointer;
+  display:none;
 
+}
+
+
+.weather:hover .add-hour-button{
+  display: block;
+}
+
+.weather-container:hover .add-preference-button{
+  display: block;
 }
 
 .add-hour-button:hover {
@@ -138,12 +152,16 @@ body {
   border: none;
   font-size: inherit;
   cursor: pointer;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   outline: none;
   border-radius: 0.3125rem;
 
+}
+
+.bustimebox-container:hover .add-bus-button{
+  display: flex;
 }
 
 .add-bus-button-container {
@@ -378,7 +396,7 @@ body {
 .add-line {
   flex: 0.1;
   margin: 0 10px;
-  display: flex;
+  display: none;
   /* Enables Flexbox */
   align-items: center;
   /* Centers vertically */
@@ -419,6 +437,10 @@ body {
   /* Remove outline on focus */
   border-radius: 0.3125rem;
 
+}
+
+.line-status-container:hover .add-line{
+  display: flex;
 }
 
 
