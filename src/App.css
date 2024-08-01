@@ -15,7 +15,7 @@ html, body {
   margin:0px;
 }
 
-.app-date {
+.app-time {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -46,31 +46,23 @@ html, body {
 }
 
 .weather-box {
-  width: calc(100% / 13 - 0.125rem);
-  /* 2px to rem */
   height: auto;
-  /* 100px to rem */
-  /* border: 0.0625rem solid black; 1px to rem */
   align-items: center;
   justify-content: center;
-  /* background-color: #f0f0f0; */
   box-sizing: border-box;
-  margin-left: 0.3125rem;
-  /* 5px to rem */
-  margin-right: 0.3125rem;
-  /* 5px to rem */
+  margin-left: auto;
+  margin-right: auto;
   flex-direction: column;
-  /* Align children vertically */
-
-}
-
-/* .weather-box-hour {
-  background-color: pink;
 }
 
 .weather-box-weather {
-  background-color: orange;
-} */
+  background-color: green;
+  height: 3.75rem;
+  align-items: center;
+  
+  display:flex;
+  
+}
 
 .bustimebox-container {
   display: flex;

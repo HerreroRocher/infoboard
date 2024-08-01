@@ -9,7 +9,7 @@ function App() {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const date = now.toLocaleDateString("en-GB", {weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'})
+      const date = now.toLocaleDateString("en-GB", { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
       const hours = String(now.getHours()).padStart(2, '0');
       const hoursInt = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -97,19 +97,37 @@ function Weather({ hour }) {
 
   return (
     <div className="weather">
-      {forecast.slice(hour, hour + 18).map((forecastHourItem, index) => (
-    <div key={index} className="weather-box">
-      <div className="weather-box-hour">
-        <b>{formatTime(forecastHourItem.time, false)}</b>
-      </div>
-      <div className="weather-box-weather">
-        <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img>
-      </div>
-      <div className='weather-box-conditions'>
-        <p>{forecastHourItem.temp_c}°C</p>
-      </div>
-    </div>
-  ))}
+      {forecast.slice(hour - 1, hour + 17).map((forecastHourItem, index) => {
+        return (
+          index === 0 ? (
+            <div key={index} className="weather-box">
+              <div className="weather-box-hour">
+                <b>Time:</b>
+              </div>
+              <div className="weather-box-weather">
+                {/* <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img> */}
+                <p style={{margin:"auto", marginBottom:"auto"}}>Conditions:</p>
+              </div>
+              <div className='weather-box-conditions'>
+                <p>Temperature:</p>
+              </div>
+            </div>
+          )
+            :
+            (<div key={index} className="weather-box">
+              <div className="weather-box-hour">
+                <b>{formatTime(forecastHourItem.time, false)}</b>
+              </div>
+              <div className="weather-box-weather">
+                <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img>
+              </div>
+              <div className='weather-box-conditions'>
+                <p>{forecastHourItem.temp_c}°C</p>
+              </div>
+            </div>)
+        )
+
+      })}
     </div>
   );
 }
