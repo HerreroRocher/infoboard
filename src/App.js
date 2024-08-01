@@ -4,16 +4,19 @@ import './App.css';
 function App() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentHour, setCurrentHour] = useState(0);
+  const [currentDate, setCurrentDate] = useState("")
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
+      const date = now.toLocaleDateString("en-GB", {weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'})
       const hours = String(now.getHours()).padStart(2, '0');
       const hoursInt = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       setCurrentTime(`${hours}:${minutes}:${seconds}`);
       setCurrentHour(hoursInt);
+      setCurrentDate(date)
     };
 
     updateTime();
@@ -24,7 +27,7 @@ function App() {
 
   return (
     <div className="App">
-      <Description time={currentTime} />
+      <Description time={currentTime} date={currentDate} />
       <Weather hour={currentHour} />
       <BusTimeBoxContainer />
       <LineStatusContainer />
@@ -32,11 +35,12 @@ function App() {
   );
 }
 
-function Description({ time }) {
+function Description({ time, date }) {
   return (
     <header className="App-header">
       <p className="app-title">Daniel's infoboard using React JS</p>
       <p className="app-time">{time}</p>
+      <p className='app-date'>{date}</p>
     </header>
   );
 }

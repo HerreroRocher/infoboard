@@ -9,12 +9,16 @@ html, body {
   text-align: center;
 }
 
-.app-title{
+
+.app-time, .app-date, .app-title {
+  flex: 0 1 auto;
   margin:0px;
 }
 
-.app-time{
-  margin:0px;
+.app-date {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .App-header {
@@ -26,6 +30,7 @@ html, body {
   /* 10px + 2vmin */
   color: white;
   padding:10px;
+  
 }
 
 .weather {
