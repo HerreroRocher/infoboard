@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   background-color: #eb9b3f;
   overflow-x: hidden;
   width: 100%;
@@ -10,9 +11,11 @@ html, body {
 }
 
 
-.app-time, .app-date, .app-title {
+.app-time,
+.app-date,
+.app-title {
   flex: 0 1 auto;
-  margin:0px;
+  margin: 0px;
 }
 
 .app-time {
@@ -29,8 +32,22 @@ html, body {
   font-size: calc(0.625rem + 2vmin);
   /* 10px + 2vmin */
   color: white;
-  padding:10px;
-  
+  padding: 10px;
+
+}
+
+.add-preference-button {
+  background-color: rgb(12, 151, 12);
+  color: white;
+  width: 100%;
+  margin: 0px;
+  border-radius: 0.3125rem;
+  border: none;
+  cursor: pointer;
+}
+
+.add-preference-button:hover {
+  background-color: darkgreen;
 }
 
 .weather {
@@ -59,9 +76,9 @@ html, body {
   /* background-color: green; */
   height: 3.75rem;
   align-items: center;
-  
-  display:flex;
-  
+
+  display: flex;
+
 }
 
 .bustimebox-container {
@@ -87,8 +104,9 @@ html, body {
   border-radius: 0.3125rem;
 
 }
-.add-bus-button-container{
-  height:50vh;
+
+.add-bus-button-container {
+  height: 50vh;
   margin: 0 10px;
 
 }
@@ -159,14 +177,14 @@ html, body {
   margin-bottom: 0.2em;
 }
 
-.bustimebox-name{
+.bustimebox-name {
   display: flex;
   flex-direction: column;
-  align-items: center; 
-  flex: 1; 
+  align-items: center;
+  flex: 1;
 }
 
-.bustimebox-header{
+.bustimebox-header {
   display: flex;
   width: 100%;
   justify-content: space-around;
@@ -192,7 +210,7 @@ html, body {
   justify-content: center;
   cursor: pointer;
   padding: 0px;
-  
+
 }
 
 
@@ -201,7 +219,7 @@ html, body {
 }
 
 .remove-bus-button:hover {
-  background-color: darkred; 
+  background-color: darkred;
 }
 
 .condition-icon {
@@ -245,11 +263,12 @@ html, body {
 }
 
 
-.line-name{
+.line-name {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .status {
   margin-top: 5px;
   display: flex;
@@ -278,35 +297,52 @@ html, body {
 }
 
 .remove-line-button:hover {
-  background-color: darkred; /* Change color on hover */
+  background-color: darkred;
+  /* Change color on hover */
 }
 
 .add-line {
   flex: 0.1;
   margin: 0 10px;
-  display: flex;           /* Enables Flexbox */
-  align-items: center;     /* Centers vertically */
-  justify-content: center; /* Centers horizontally */
-  height: 50px;            /* Define a height */
-  font-size: 20px;         /* Increase font size for visibility */
-  color: white;            /* Set text color */
-  
+  display: flex;
+  /* Enables Flexbox */
+  align-items: center;
+  /* Centers vertically */
+  justify-content: center;
+  /* Centers horizontally */
+  height: 50px;
+  /* Define a height */
+  font-size: 20px;
+  /* Increase font size for visibility */
+  color: white;
+  /* Set text color */
+
 }
 
 .add-line-button {
-  width: 100%;             /* Fill the width of the parent div */
-  height: 100%;            /* Fill the height of the parent div */
+  width: 100%;
+  /* Fill the width of the parent div */
+  height: 100%;
+  /* Fill the height of the parent div */
   background-color: rgb(12, 151, 12);
   color: black;
-  border: none;            /* Remove default button border */
-  color: inherit;          /* Match text color with parent */
-  font-size: inherit;      /* Inherit font size from parent */
-  cursor: pointer;         /* Pointer cursor on hover */
-  display: flex;           /* Enable Flexbox */
-  align-items: center;     /* Center text vertically */
-  justify-content: center; /* Center text horizontally */
+  border: none;
+  /* Remove default button border */
+  color: inherit;
+  /* Match text color with parent */
+  font-size: inherit;
+  /* Inherit font size from parent */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  display: flex;
+  /* Enable Flexbox */
+  align-items: center;
+  /* Center text vertically */
+  justify-content: center;
+  /* Center text horizontally */
   outline: none;
-  margin: 0.625rem;           /* Remove outline on focus */
+  margin: 0.625rem;
+  /* Remove outline on focus */
   border-radius: 0.3125rem;
 
 }
@@ -315,10 +351,11 @@ html, body {
 
 
 .add-line-button:hover {
-  background-color: darkgreen; /* Change color on hover */
+  background-color: darkgreen;
+  /* Change color on hover */
 }
 
-.disruption-reason{
+.disruption-reason {
   background-color: yellow;
   font-size: small;
 }

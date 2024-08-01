@@ -47,7 +47,7 @@ function Description({ time, date }) {
 
 function Weather({ hour }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
-  const [preferences, setPreferences] = useState(["Condition icon", "Temperature", "Wind speed", "Feels like"])
+  const [preferences, setPreferences] = useState(["Condition icon", "Temperature"])
   const [allPreferences, setAllPreferences] = useState();
 
   function formatTime(datehourmin, int) {
@@ -72,7 +72,7 @@ function Weather({ hour }) {
     return (int ? localTimeHourInt : localTimeHourStr);
   }
 
-  useEffect(() => {
+  function getWeatherInfo() {
     fetch("https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=London&days=2&aqi=no")
       .then(response => {
         // console.log("Raw response: ", response)
@@ -121,7 +121,7 @@ function Weather({ hour }) {
         setAllPreferences(preferences.filter(preference => preference !== "time"))
         setForecast(forecastFetched);
       });
-  }, [hour]);
+  }
 
 
   function addPreference() {
@@ -135,52 +135,65 @@ function Weather({ hour }) {
     }
   }
 
+  useEffect(() => {
+    // Initial fetch
+    getWeatherInfo();
+
+    // interval to fetch data every 10 minutes
+    const intervalId = setInterval(getWeatherInfo, 600000);
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [preferences]);
+
 
 
 
   return (
-    <div className="weather">
-      {forecast.slice(hour - 1, hour + 17).map((forecastHourItem, index) => {
+    <div className='weather-container'>
+      <div className="weather">
+        {forecast.slice(hour - 1, hour + 17).map((forecastHourItem, index) => {
 
-        const first = Boolean(!index);
-        return (
-          <div key={index} className="weather-box" >
-            <div className="weather-box-hour">
-              <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
-            </div>
-
-            {preferences.includes("Condition icon") &&
-
-              <div className="weather-box-weather">
-                {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["Condition icon"]} alt={forecastHourItem["Condition text"]}></img>)}
+          const first = Boolean(!index);
+          return (
+            <div key={index} className="weather-box" >
+              <div className="weather-box-hour">
+                <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
               </div>
-            }
 
-            {/* Loop through their preferences, which will be verified as data that we have, store the value of that key, and then add the divs */}
+              {preferences.includes("Condition icon") &&
 
-            {preferences.map((preference, index) => {
+                <div className="weather-box-weather">
+                  {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["Condition icon"]} alt={forecastHourItem["Condition text"]}></img>)}
+                </div>
+              }
 
-              return (
-                preference !== "Condition icon" && (
-                  <div className='weather-box-conditions'>
-                    <p>{first ? preference : forecastHourItem[preference]}</p>
-                  </div>)
-              )
+              {/* Loop through their preferences, which will be verified as data that we have, store the value of that key, and then add the divs */}
 
+              {preferences.map((preference, index) => {
 
-
-
-            })}
-
-
-          </div>
-        )
-
-      })}
+                return (
+                  preference !== "Condition icon" && (
+                    <div className='weather-box-conditions'>
+                      <p>{first ? preference : forecastHourItem[preference]}</p>
+                    </div>)
+                )
 
 
+
+
+              })}
+
+
+            </div>
+          )
+
+        })}
+
+
+      </div >
       <button className='add-preference-button' onClick={addPreference}>+</button>
-    </div >
+    </div>
   );
 }
 
@@ -373,7 +386,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
     // Initial fetch
     fetchBusTimes();
 
-    // interval to fetch data every 30 seconds
+    // interval to fetch data every 10 seconds
     const intervalId = setInterval(fetchBusTimes, 10000);
 
     // Clear interval on component unmount
