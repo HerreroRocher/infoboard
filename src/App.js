@@ -47,7 +47,8 @@ function Description({ time, date }) {
 
 function Weather({ hour }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
-  const [preferences, setPreferences] = useState(["condition icon", "temperature", "wind speed", "feels like"])
+  const [preferences, setPreferences] = useState(["Condition icon", "Temperature", "Wind speed", "Feels like"])
+  const [allPreferences, setAllPreferences] = useState();
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -82,6 +83,7 @@ function Weather({ hour }) {
         console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
+        let preferences = [];
         for (let day = 0; day < 2; day++) {
           const hourlyData = data.forecast.forecastday[day].hour;
           for (let hour = 0; hour < hourlyData.length; hour++) {
@@ -89,30 +91,52 @@ function Weather({ hour }) {
 
             const hourObject = {
               "time": hourData.time,
-              "condition text": hourData.condition.text,
-              "condition icon": hourData.condition.icon,
-              "chance of rain": hourData.chance_of_rain + "%",
-              "chance of snow": hourData.chance_of_snow + "%",
-              "cloud coverage": hourData.cloud + "%",
-              "feels like": hourData.feelslike_c + "°C",
-              "gust speed": hourData.gust_mph + "mph",
-              "humidity": hourData.humidity + "%",
-              "precipitation": hourData.precip_mm + "mm",
-              "pressure": hourData.pressure_mb + "hPa",
-              "snow levels": hourData.snow_cm + "cm",
-              "temperature": hourData.temp_c + "°C",
-              "uv index": hourData.uv,
-              "visibility": hourData.vis_miles + "miles",
-              "wind direction": hourData.wind_degree + "° (" + hourData.wind_dir + ")",
-              "wind speed": hourData.wind_mph + "mph",
+              "Condition text": hourData.condition.text,
+              "Condition icon": hourData.condition.icon,
+              "Chance of rain": hourData.chance_of_rain + "%",
+              "Chance of snow": hourData.chance_of_snow + "%",
+              "Cloud coverage": hourData.cloud + "%",
+              "Feels like": hourData.feelslike_c + "°C",
+              "Gust speed": hourData.gust_mph + "mph",
+              "Humidity": hourData.humidity + "%",
+              "Precipitation": hourData.precip_mm + "mm",
+              "Pressure": hourData.pressure_mb + "hPa",
+              "Snow levels": hourData.snow_cm + "cm",
+              "Temperature": hourData.temp_c + "°C",
+              "UV index": hourData.uv,
+              "Visibility": hourData.vis_miles + "miles",
+              "Wind direction": hourData.wind_degree + "° (" + hourData.wind_dir + ")",
+              "Wind speed": hourData.wind_mph + "mph",
             };
             forecastFetched.push(hourObject);
+
+            if (hourObject) {
+              preferences = Object.keys(hourObject)
+            }
           }
         }
+
+        console.log("Preferences", preferences)
         console.log("Forecast: ", forecastFetched)
+        setAllPreferences(preferences.filter(preference => preference !== "time"))
         setForecast(forecastFetched);
       });
   }, [hour]);
+
+
+  function addPreference() {
+    if (allPreferences.length > 0) {
+      const preference = prompt("Please enter a weather parameter you would like to add:\n" + allPreferences.join(", "))
+      if (allPreferences.includes(preference)) {
+        setPreferences([...preferences, preference])
+      } else {
+        alert(preference, "isn't one of our available preferences.")
+      }
+    }
+  }
+
+
+
 
   return (
     <div className="weather">
@@ -125,10 +149,10 @@ function Weather({ hour }) {
               <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
             </div>
 
-            {preferences.includes("condition icon") &&
+            {preferences.includes("Condition icon") &&
 
               <div className="weather-box-weather">
-                {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["condition icon"]} alt={forecastHourItem["condition text"]}></img>)}
+                {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["Condition icon"]} alt={forecastHourItem["Condition text"]}></img>)}
               </div>
             }
 
@@ -137,11 +161,11 @@ function Weather({ hour }) {
             {preferences.map((preference, index) => {
 
               return (
-                preference !== "condition icon" && (
+                preference !== "Condition icon" && (
                   <div className='weather-box-conditions'>
                     <p>{first ? preference : forecastHourItem[preference]}</p>
                   </div>)
-            )
+              )
 
 
 
@@ -149,13 +173,13 @@ function Weather({ hour }) {
             })}
 
 
-
-
-
           </div>
         )
 
       })}
+
+
+      <button className='add-preference-button' onClick={addPreference}>+</button>
     </div >
   );
 }
