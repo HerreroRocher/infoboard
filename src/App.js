@@ -47,6 +47,7 @@ function Description({ time, date }) {
 
 function Weather({ hour }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
+  const [preferences, setPreferences] = useState(["condition icon", "temperature", "wind speed", "feels like"])
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -84,15 +85,26 @@ function Weather({ hour }) {
         for (let day = 0; day < 2; day++) {
           const hourlyData = data.forecast.forecastday[day].hour;
           for (let hour = 0; hour < hourlyData.length; hour++) {
-            const time = hourlyData[hour].time;
-            const conditionText = hourlyData[hour].condition.text;
-            const conditionIcon = hourlyData[hour].condition.icon;
+            const hourData = hourlyData[hour]
 
             const hourObject = {
-              "time": time,
-              "condition text": hourlyData[hour].condition.text,
-              "condition icon": hourlyData[hour].condition.icon,
-              "temp c": hourlyData[hour].temp_c
+              "time": hourData.time,
+              "condition text": hourData.condition.text,
+              "condition icon": hourData.condition.icon,
+              "chance of rain": hourData.chance_of_rain + "%",
+              "chance of snow": hourData.chance_of_snow + "%",
+              "cloud coverage": hourData.cloud + "%",
+              "feels like": hourData.feelslike_c + "°C",
+              "gust speed": hourData.gust_mph + "mph",
+              "humidity": hourData.humidity + "%",
+              "precipitation": hourData.precip_mm + "mm",
+              "pressure": hourData.pressure_mb + "hPa",
+              "snow levels": hourData.snow_cm + "cm",
+              "temperature": hourData.temp_c + "°C",
+              "uv index": hourData.uv,
+              "visibility": hourData.vis_miles + "miles",
+              "wind direction": hourData.wind_degree + "° (" + hourData.wind_dir + ")",
+              "wind speed": hourData.wind_mph + "mph",
             };
             forecastFetched.push(hourObject);
           }
@@ -113,15 +125,31 @@ function Weather({ hour }) {
               <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
             </div>
 
-            {/* Needs to be loop through their condition preferences */}
-            <div className="weather-box-weather">
-              {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["condition icon"]} alt={forecastHourItem["condition text"]}></img>)}
-            </div>
-            <div className='weather-box-conditions'>
-              <p>{first ? "Temperature:" : forecastHourItem["temp c"] + "°C"}</p>
-              {/* More conditions.. */}
-            </div>
-            {/* Needs to be looped */}
+            {preferences.includes("condition icon") &&
+
+              <div className="weather-box-weather">
+                {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["condition icon"]} alt={forecastHourItem["condition text"]}></img>)}
+              </div>
+            }
+
+            {/* Loop through their preferences, which will be verified as data that we have, store the value of that key, and then add the divs */}
+
+            {preferences.map((preference, index) => {
+
+              return (
+                preference !== "condition icon" && (
+                  <div className='weather-box-conditions'>
+                    <p>{first ? preference : forecastHourItem[preference]}</p>
+                  </div>)
+            )
+
+
+
+
+            })}
+
+
+
 
 
           </div>
