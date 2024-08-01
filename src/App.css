@@ -56,7 +56,7 @@ html, body {
 }
 
 .weather-box-weather {
-  background-color: green;
+  /* background-color: green; */
   height: 3.75rem;
   align-items: center;
   

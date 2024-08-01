@@ -78,57 +78,57 @@ function Weather({ hour }) {
       })
       .then(data => {
         // console.log("Forecast Data", data)
-        // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
+        console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
-        let forcastFetched = [];
-        const day0 = data.forecast.forecastday[0].hour;
-        const day1 = data.forecast.forecastday[1].hour;
+        let forecastFetched = [];
+        for (let day = 0; day < 2; day++) {
+          const hourlyData = data.forecast.forecastday[day].hour;
+          for (let hour = 0; hour < hourlyData.length; hour++) {
+            const time = hourlyData[hour].time;
+            const conditionText = hourlyData[hour].condition.text;
+            const conditionIcon = hourlyData[hour].condition.icon;
 
-        // console.log("Day 0", data.forecast.forecastday[0].hour)
-
-        // console.log("Day 1", data.forecast.forecastday[1].hour)
-
-        forcastFetched = day0.concat(day1)
-
-        console.log("Forecast: ", forcastFetched)
-        setForecast(forcastFetched);
+            const hourObject = {
+              "time": time,
+              "condition text": hourlyData[hour].condition.text,
+              "condition icon": hourlyData[hour].condition.icon,
+              "temp c": hourlyData[hour].temp_c
+            };
+            forecastFetched.push(hourObject);
+          }
+        }
+        console.log("Forecast: ", forecastFetched)
+        setForecast(forecastFetched);
       });
   }, [hour]);
 
   return (
     <div className="weather">
       {forecast.slice(hour - 1, hour + 17).map((forecastHourItem, index) => {
+
+        const first = Boolean(!index);
         return (
-          index === 0 ? (
-            <div key={index} className="weather-box">
-              <div className="weather-box-hour">
-                <b>Time:</b>
-              </div>
-              <div className="weather-box-weather">
-                {/* <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img> */}
-                <p style={{margin:"auto", marginBottom:"auto"}}>Conditions:</p>
-              </div>
-              <div className='weather-box-conditions'>
-                <p>Temperature:</p>
-              </div>
+          <div key={index} className="weather-box" >
+            <div className="weather-box-hour">
+              <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
             </div>
-          )
-            :
-            (<div key={index} className="weather-box">
-              <div className="weather-box-hour">
-                <b>{formatTime(forecastHourItem.time, false)}</b>
-              </div>
-              <div className="weather-box-weather">
-                <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img>
-              </div>
-              <div className='weather-box-conditions'>
-                <p>{forecastHourItem.temp_c}°C</p>
-              </div>
-            </div>)
+
+            {/* Needs to be loop through their condition preferences */}
+            <div className="weather-box-weather">
+              {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["condition icon"]} alt={forecastHourItem["condition text"]}></img>)}
+            </div>
+            <div className='weather-box-conditions'>
+              <p>{first ? "Temperature:" : forecastHourItem["temp c"] + "°C"}</p>
+              {/* More conditions.. */}
+            </div>
+            {/* Needs to be looped */}
+
+
+          </div>
         )
 
       })}
-    </div>
+    </div >
   );
 }
 
