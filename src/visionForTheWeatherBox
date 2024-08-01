@@ -1,0 +1,3 @@
+have it display from an hour before, but make the first hour (one hour before current) time and icon hidden -- FIND OUT HOW
+where the extras (temp, uv, etc.) go, for the reference element, let it be the title of whats displaying, and when you hover over it, a removebutton will appear, and add an add button somewhere
+add ability to remove or add hours to the end

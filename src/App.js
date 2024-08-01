@@ -46,7 +46,7 @@ function Description({ time, date }) {
 }
 
 function Weather({ hour }) {
-  const [conditions, setConditions] = useState([]); // State for weather conditions
+  const [forecast, setForecast] = useState([]); // State for weather conditions
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -77,40 +77,36 @@ function Weather({ hour }) {
         return response.json();
       })
       .then(data => {
-        // console.log("Parsed Response", data)
-        let conditions = [];
-        for (let x = 0; x < 2; x++) {
-          const hourlyData = data.forecast.forecastday[x].hour;
-          for (let i = 0; i < hourlyData.length; i++) {
-            const time = hourlyData[i].time;
-            const conditionText = hourlyData[i].condition.text;
-            const conditionIcon = hourlyData[i].condition.icon;
+        // console.log("Forecast Data", data)
+        // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
-            const hourObject = {
-              "time": time,
-              "conditionText": conditionText,
-              "conditionIcon": conditionIcon
-            };
-            conditions.push(hourObject);
-          }
-        }
+        let forcastFetched = [];
+        const day0 = data.forecast.forecastday[0].hour;
+        const day1 = data.forecast.forecastday[1].hour;
 
-        console.log("RAN")
+        // console.log("Day 0", data.forecast.forecastday[0].hour)
 
-        // console.log("Conditions: ", conditions)
-        setConditions(conditions);
+        // console.log("Day 1", data.forecast.forecastday[1].hour)
+
+        forcastFetched = day0.concat(day1)
+
+        console.log("Forecast: ", forcastFetched)
+        setForecast(forcastFetched);
       });
   }, [hour]);
 
   return (
     <div className="weather">
-      {conditions.slice(hour, hour + 18).map((condition, index) => (
+      {forecast.slice(hour, hour + 18).map((forecastHourItem, index) => (
     <div key={index} className="weather-box">
       <div className="weather-box-hour">
-        <b>{formatTime(condition.time, false)}</b>
+        <b>{formatTime(forecastHourItem.time, false)}</b>
       </div>
       <div className="weather-box-weather">
-        <img className='condition-icon' src={condition.conditionIcon} alt={condition.conditionText}></img>
+        <img className='condition-icon' src={forecastHourItem.condition.icon} alt={forecastHourItem.condition.text}></img>
+      </div>
+      <div className='weather-box-conditions'>
+        <p>{forecastHourItem.temp_c}°C</p>
       </div>
     </div>
   ))}
@@ -131,7 +127,7 @@ function BusTimeBoxContainer() {
       .then(response => response.json())
       .then(data => {
         // Assuming the first result is the correct one
-        console.log(`Data received from fetch 1 (${call}):`, data);
+        // console.log(`Data received from fetch 1 (${call}):`, data);
         // const stopPoint = data.matches[0];
         // console.log('Stop Point:', stopPoint);
         const nameMatches = data.matches;
@@ -168,7 +164,7 @@ function BusTimeBoxContainer() {
           .then(response => response.json())
           .then(data => {
 
-            console.log(`Data received from fetch 2 (${call}):`, data);
+            // console.log(`Data received from fetch 2 (${call}):`, data);
 
             data = data.children
             // console.log("Data:", data)
@@ -183,7 +179,7 @@ function BusTimeBoxContainer() {
             })
 
 
-            console.log("Bus Stops:", busStops)
+            // console.log("Bus Stops:", busStops)
 
             let stopList = ""
             let stopLettersStr = "("
@@ -308,7 +304,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
     fetchBusTimes();
 
     // interval to fetch data every 30 seconds
-    const intervalId = setInterval(fetchBusTimes, 45000);
+    const intervalId = setInterval(fetchBusTimes, 10000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
