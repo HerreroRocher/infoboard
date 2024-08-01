@@ -170,6 +170,11 @@ function Weather({ hour }) {
     setHoursShowing(newHoursShowing)
   }
 
+  function removePreference(specPreference) {
+    const updatedPreferences = preferences.filter(preference => preference !== specPreference)
+    setPreferences(updatedPreferences)
+  }
+
 
   return (
     <div className='weather-container'>
@@ -182,33 +187,41 @@ function Weather({ hour }) {
           return (
             <div key={index} className="weather-box" >
               <div className="weather-box-hour">
-                <b>{first ? "Time" : formatTime(forecastHourItem.time, false)}</b>
+                <b>{first ? "Time:" : formatTime(forecastHourItem.time, false)}</b>
                 {last && (
                   <button className="remove-weather-button" onClick={removeLastHour}>-</button>
                 )}
               </div>
 
-              {preferences.includes("Condition icon") &&
-
-                <div className="weather-box-weather">
-                  {first ? (<p style={{ margin: "auto", marginBottom: "auto" }}>Condition <br></br>Icon:</p>) : (<img className='condition-icon' src={forecastHourItem["Condition icon"]} alt={forecastHourItem["Condition text"]}></img>)}
-                </div>
-              }
-
               {/* Loop through their preferences, which will be verified as data that we have, store the value of that key, and then add the divs */}
 
               {preferences.map((preference, index) => {
+                return preference === "Condition icon" ? (
+                  <div key={index} className="weather-box-weather">
+                    {first ? (
+                      <p className='condition-name' style={{ margin: "auto", marginBottom: "auto" }}>
+                        Condition <br />Icon:
+                        <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
+                      </p>
+                    ) : (
+                      <img
+                        className="condition-icon"
+                        src={forecastHourItem["Condition icon"]}
+                        alt={forecastHourItem["Condition text"]}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div key={index} className="weather-box-conditions">
+                    <p className='condition-name'>{first ? preference + ":" : forecastHourItem[preference]}
+                      {first && (
+                        <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
+                      )}
+                    </p>
 
-                return (
-                  preference !== "Condition icon" && (
-                    <div className='weather-box-conditions'>
-                      <p>{first ? preference : forecastHourItem[preference]}</p>
-                    </div>)
-                )
 
-
-
-
+                  </div>
+                );
               })}
 
 

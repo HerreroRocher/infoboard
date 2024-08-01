@@ -94,6 +94,34 @@ body {
 
 }
 
+.remove-condition-button {
+  margin-left: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: (40*0.25)rem;
+  height: (40*0.25)rem;
+  /* font-size: 24px; */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.condition-name{
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.condition-name:hover .remove-condition-button {
+  display: flex;
+}
+
+.remove-condition-button:hover{
+  background-color: darkred;
+}
+
 .bustimebox-container {
   display: flex;
   justify-content: space-around;
@@ -307,6 +335,10 @@ body {
 
 .line-name:hover .remove-line-button {
   display: flex;
+}
+
+.remove-line-button:hover{
+  background-color: darkred;
 }
 
 .remove-weather-button {
