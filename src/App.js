@@ -251,9 +251,11 @@ function BusTimeBoxContainer() {
   return (
     <div className="bustimebox-container">
       {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
-      {stopIds.length < 6 && (<div className='add-line'>
-        <button className='add-line-button' onClick={handleAddBusStop}>+</button>
-      </div>)}
+      {stopIds.length < 6 && (
+        <div className='add-bus-button-container'>
+          <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
+        </div>
+      )}
     </div>
   )
 }
@@ -302,7 +304,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
     fetchBusTimes();
 
     // interval to fetch data every 30 seconds
-    const intervalId = setInterval(fetchBusTimes, 15000);
+    const intervalId = setInterval(fetchBusTimes, 45000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
@@ -329,7 +331,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
               <p className="bus-stop">Stop {busTimes[0].platformName}: {busTimes[0].stationName} </p>
               <p className="bus-towards"> towards {busTimes[0].towards} </p>
             </>
-          ) : <p>Loading bus...</p>}
+          ) : (busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>)}
 
         </div>
         <button className="remove-bus-button" onClick={handleRemoveBusStop}>-</button>
