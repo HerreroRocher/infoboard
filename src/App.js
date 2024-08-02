@@ -47,9 +47,17 @@ function Description({ time, date }) {
 
 function Weather({ hour }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
-  const [preferences, setPreferences] = useState(["Condition icon", "Temperature"])
   const [allPreferences, setAllPreferences] = useState([]);
-  const [hoursShowing, setHoursShowing] = useState(10)
+
+
+  const [hoursShowing, setHoursShowing] = useState(JSON.parse(localStorage.getItem('hoursShowing')) ? JSON.parse(localStorage.getItem('hoursShowing')) : 10)
+  const [preferences, setPreferences] = useState(JSON.parse(localStorage.getItem('preferences')) ? JSON.parse(localStorage.getItem('preferences')) : ["Condition icon", "Temperature"])  
+  
+  useEffect(() => {
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+    localStorage.setItem('hoursShowing', JSON.stringify(hoursShowing));
+  }, [preferences, hoursShowing]);
+  
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -119,7 +127,8 @@ function Weather({ hour }) {
 
         // console.log("Preferences", preferences)
         // console.log("Forecast: ", forecastFetched)
-        setAllPreferences(preferences.filter(preference => preference !== "time"))
+        preferences = preferences.filter(preference => preference !== "time")
+        setAllPreferences(preferences)
         setForecast(forecastFetched);
       });
   }
@@ -241,7 +250,14 @@ function Weather({ hour }) {
 }
 
 function BusTimeBoxContainer() {
-  const [stopIds, setStopIds] = useState(["490003564W", "490003564E", "490015187F"])
+  const [stopIds, setStopIds] = useState(JSON.parse(localStorage.getItem('stopIds')) ? JSON.parse(localStorage.getItem('stopIds')) : ["490003564W", "490003564E", "490015187F"])
+  
+  useEffect(() => {
+    localStorage.setItem('stopIds', JSON.stringify(stopIds));
+  }, [stopIds]);
+
+  
+  
 
   function setStopID(stopName) {
 
@@ -523,11 +539,16 @@ function LineStatusContainer() {
   /*Array like [{name: "Northern", severityStatusDescription: "Good Service", ...}, 
   {name: "Piccadilly", severityStatusDescription: "Bad Service", ...} ]*/
 
-  const [linesShowing, setLinesShowing] = useState(["piccadilly"]);
+  const [linesShowing, setLinesShowing] = useState(JSON.parse(localStorage.getItem('linesShowing')) ? JSON.parse(localStorage.getItem('linesShowing')) : ["piccadilly", "victoria"]);
   /*Array like ["'Picccadilly', 'Victoria', 'Northern'"]*/
 
   const [lineList, setLineList] = useState("failed");
   /*Array of approved lines like ["'Picccadilly', 'Victoria', 'Northern'"]*/
+
+  useEffect(() => {
+    localStorage.setItem('linesShowing', JSON.stringify(linesShowing));
+  }, [linesShowing]);
+  
 
   const fetchLineInfo = () => {
     fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status")
