@@ -276,7 +276,7 @@ function BusTimeBoxContainer() {
           // const name = "Muswell Hill Road"
 
           // console.log(nameMatches.filter(nameMatch => nameMatch.name === name))
-          locID = nameMatches.filter(nameMatch => nameMatch.name === name)[0].id
+          locID = nameMatches.filter(nameMatch => nameMatch.name.toLowerCase() === name.toLowerCase())[0].id
         } else {
           locID = nameMatches[0].id
         }
@@ -317,7 +317,7 @@ function BusTimeBoxContainer() {
 
 
             data = iterateChildrenAndReturnStops(data, "NaptanPublicBusCoachTram")
-            console.log(`Stops Objects for location ID: ${locID} :`, data)
+            // console.log(`Stops Objects for location ID: ${locID} :`, data)
 
             let busStops = []
             data.map((child, index) => {
@@ -355,12 +355,12 @@ function BusTimeBoxContainer() {
                 chosenBusStopObject = busStop;
               }
             }
-            console.log("Id added:", id);
+            // console.log("Id added:", id);
 
             if (id) {
               if (!stopIds.includes(id)) {
                 const newStopIds = [...stopIds, id];
-                console.log("New stop IDS:", newStopIds)
+                // console.log("New stop IDS:", newStopIds)
                 setStopIds(newStopIds)
               } else {
                 alert(`'Stop ${chosenBusStopObject.stopLetter}: ${chosenBusStopObject.name}' is already on your infoboard.`)
@@ -413,8 +413,24 @@ function BusTimeBoxContainer() {
 
 function BusTimeBox({ stopId, handleRemoveBusStop }) {
   const [busTimes, setBusTimes] = useState([]); // State for bus times
+  const [busStopInfo, setBusStopInfo] = useState([])
   const contentRef = useRef(null); // Ref to access the bustimebox-content div
 
+  useEffect(() => {
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}`)
+      .then(response => response.json())
+      .then(data => {
+        data = data.children.filter(child => child.id === stopId)[0]
+        // console.log("Bus stop info for stop id:" + stopId, data)
+        const newBusStopInfo = data
+        // console.log(newBusStopInfo)
+        if (newBusStopInfo) {
+          // console.log("SET")
+          setBusStopInfo(newBusStopInfo);
+        }
+      }
+      )
+  }, [])
 
   const fetchBusTimes = () => {
     // console.log("Fetching bus times...");
@@ -470,19 +486,16 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
   }, [busTimes.length]);
 
 
-
-
-
   return (
     <div className="bustimebox">
       <div className='bustimebox-header'>
         <div className="bustimebox-name">
-          {busTimes.length > 0 ? (
-            <>
-              <p className="bus-stop">Stop {busTimes[0].platformName}: {busTimes[0].stationName} </p>
-              <p className="bus-towards"> towards {busTimes[0].towards} </p>
-            </>
-          ) : (busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>)}
+        {busStopInfo && busStopInfo.stopLetter ? (
+          <>
+            <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
+            <p className="bus-towards"> towards {busStopInfo.additionalProperties.find(property => property.key === "Towards")?.value} </p>
+          </>
+        ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
 
         </div>
         <button className="remove-bus-button" onClick={handleRemoveBusStop}>-</button>
