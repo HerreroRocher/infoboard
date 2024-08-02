@@ -81,7 +81,7 @@ function Weather({ hour }) {
       })
       .then(data => {
         // console.log("Forecast Data", data)
-        console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
+        // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
         let preferences = [];
@@ -117,8 +117,8 @@ function Weather({ hour }) {
           }
         }
 
-        console.log("Preferences", preferences)
-        console.log("Forecast: ", forecastFetched)
+        // console.log("Preferences", preferences)
+        // console.log("Forecast: ", forecastFetched)
         setAllPreferences(preferences.filter(preference => preference !== "time"))
         setForecast(forecastFetched);
       });
@@ -253,7 +253,8 @@ function BusTimeBoxContainer() {
       .then(response => response.json())
       .then(data => {
         // Assuming the first result is the correct one
-        // console.log(`Data received from fetch 1 (${call}):`, data);
+        console.log(`Data received from fetch 1 (${call}):`, data);
+
         // const stopPoint = data.matches[0];
         // console.log('Stop Point:', stopPoint);
         const nameMatches = data.matches;
@@ -290,10 +291,34 @@ function BusTimeBoxContainer() {
           .then(response => response.json())
           .then(data => {
 
-            // console.log(`Data received from fetch 2 (${call}):`, data);
+            console.log(`Data received from fetch 2 (${call2}):`, data);
 
-            data = data.children
-            // console.log("Data:", data)
+
+            // CODE TO EXECUTE IF STOPTYPE != naptanonstreetbuscoach:
+            // find the NaptanOnstreetBusCoachStop child, and set data to that child
+
+            function iterateChildrenAndReturnStops(data, stopType) {
+              let stops = [];
+              if (data.stopType === stopType) {
+                stops.push(data)
+              } else {
+                if (data.children && data.children.length > 0) {
+                  for (let childIndex = 0; childIndex < data.children.length; childIndex++) {
+                    stops = stops.concat(iterateChildrenAndReturnStops(data.children[childIndex], stopType))
+                  }
+                }
+              }
+
+              return stops
+
+            }
+
+
+
+
+            data = iterateChildrenAndReturnStops(data, "NaptanPublicBusCoachTram")
+            console.log(`Stops Objects for location ID: ${locID} :`, data)
+
             let busStops = []
             data.map((child, index) => {
               busStops.push({
