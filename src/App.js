@@ -20,7 +20,7 @@ function App() {
     };
 
     updateTime();
-    const intervalId = setInterval(updateTime, 1000);
+    const intervalId = setInterval(updateTime, 100);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -51,13 +51,13 @@ function Weather({ hour }) {
 
 
   const [hoursShowing, setHoursShowing] = useState(JSON.parse(localStorage.getItem('hoursShowing')) ? JSON.parse(localStorage.getItem('hoursShowing')) : 10)
-  const [preferences, setPreferences] = useState(JSON.parse(localStorage.getItem('preferences')) ? JSON.parse(localStorage.getItem('preferences')) : ["Condition icon", "Temperature"])  
-  
+  const [preferences, setPreferences] = useState(JSON.parse(localStorage.getItem('preferences')) ? JSON.parse(localStorage.getItem('preferences')) : ["Condition icon", "Temperature"])
+
   useEffect(() => {
     localStorage.setItem('preferences', JSON.stringify(preferences));
     localStorage.setItem('hoursShowing', JSON.stringify(hoursShowing));
   }, [preferences, hoursShowing]);
-  
+
 
   function formatTime(datehourmin, int) {
     const localTimeFull = datehourmin;
@@ -162,7 +162,7 @@ function Weather({ hour }) {
     getWeatherInfo();
 
     // interval to fetch data every 10 minutes
-    const intervalId = setInterval(getWeatherInfo, 600000);
+    const intervalId = setInterval(getWeatherInfo, 60000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
@@ -251,25 +251,25 @@ function Weather({ hour }) {
 
 function BusTimeBoxContainer() {
   const [stopIds, setStopIds] = useState(JSON.parse(localStorage.getItem('stopIds')) ? JSON.parse(localStorage.getItem('stopIds')) : ["490003564W", "490003564E", "490015187F"])
-  
+
   useEffect(() => {
     localStorage.setItem('stopIds', JSON.stringify(stopIds));
   }, [stopIds]);
 
-  
-  
+
+
 
   function setStopID(stopName) {
 
     // expect stop name "muswell hill" "broawdfgs" "pymmes road" etc.  CASE INSENSITIVE, deal with errors
 
-    const call = `https://api.tfl.gov.uk/StopPoint/Search?query=${encodeURIComponent(stopName)}&modes=bus`
+    const call = `https://api.tfl.gov.uk/StopPoint/Search?query=${encodeURIComponent(stopName)}&modes=bus&app_key=ab8fb89349364c56b2a597d938d04025`
 
     fetch(call)
       .then(response => response.json())
       .then(data => {
         // Assuming the first result is the correct one
-        console.log(`Data received from fetch 1 (${call}):`, data);
+        // console.log(`Data received from fetch 1 (${call}):`, data);
 
         // const stopPoint = data.matches[0];
         // console.log('Stop Point:', stopPoint);
@@ -301,13 +301,13 @@ function BusTimeBoxContainer() {
 
         // console.log("LocID:", locID)
 
-        const call2 = `https://api.tfl.gov.uk/StopPoint/${locID}`
+        const call2 = `https://api.tfl.gov.uk/StopPoint/${locID}?app_key=ab8fb89349364c56b2a597d938d04025`
 
         fetch(call2)
           .then(response => response.json())
           .then(data => {
 
-            console.log(`Data received from fetch 2 (${call2}):`, data);
+            // console.log(`Data received from fetch 2 (${call2}):`, data);
 
 
             // CODE TO EXECUTE IF STOPTYPE != naptanonstreetbuscoach:
@@ -341,90 +341,98 @@ function BusTimeBoxContainer() {
                 name: child.commonName,
                 naptanId: child.naptanId,
                 stopLetter: child.stopLetter,
-                towards: (child.additionalProperties.length > 0 ? child.additionalProperties[1].value : "Unknown")
-              })
+                towards: (
+                  child.additionalProperties.filter(property => property.category === "Direction").length > 0
+                    ?
+                    (child.additionalProperties.filter(property => property.key === "Towards").length > 0 
+                    ? 
+                    child.additionalProperties.filter(property => property.key === "Towards")[0].value 
+                    : 
+                    child.additionalProperties.filter(property => property.category === "Direction")[0].value)
+                  : "Unknown")
             })
-
-
-            // console.log("Bus Stops:", busStops)
-
-            let stopList = ""
-            let stopLettersStr = "("
-
-            for (const busStop of busStops) {
-              stopList += `\nStop ${busStop.stopLetter} - Towards ${busStop.towards}`
-              stopLettersStr += `${busStop.stopLetter}, `
-            }
-
-            stopLettersStr = stopLettersStr.slice(0, -2)
-            stopLettersStr += ")"
-
-            const indicator = prompt(`Please enter the key ${stopLettersStr} of the bus stop you would like to add:${stopList}`)
-
-
-            let id = ""
-            let chosenBusStopObject = {}
-
-            for (const busStop of busStops) {
-              if (busStop.stopLetter.toLowerCase() === indicator.toLowerCase()) {
-                id = busStop.naptanId
-                chosenBusStopObject = busStop;
-              }
-            }
-            // console.log("Id added:", id);
-
-            if (id) {
-              if (!stopIds.includes(id)) {
-                const newStopIds = [...stopIds, id];
-                // console.log("New stop IDS:", newStopIds)
-                setStopIds(newStopIds)
-              } else {
-                alert(`'Stop ${chosenBusStopObject.stopLetter}: ${chosenBusStopObject.name}' is already on your infoboard.`)
-              }
-            }
-
-
-
-          })
-          .catch(error => {
-            console.error('Error fetching stop point naptanID:', error);
           })
 
+
+        // console.log("Bus Stops:", busStops)
+
+        let stopList = ""
+        let stopLettersStr = "("
+
+        for (const busStop of busStops) {
+          stopList += `\nStop ${busStop.stopLetter} - Towards ${busStop.towards}`
+          stopLettersStr += `${busStop.stopLetter}, `
+        }
+
+        stopLettersStr = stopLettersStr.slice(0, -2)
+        stopLettersStr += ")"
+
+        const indicator = prompt(`Please enter the key ${stopLettersStr} of the bus stop you would like to add:${stopList}`)
+
+
+        let id = ""
+        let chosenBusStopObject = {}
+
+        for (const busStop of busStops) {
+          if (busStop.stopLetter.toLowerCase() === indicator.toLowerCase()) {
+            id = busStop.naptanId
+            chosenBusStopObject = busStop;
+          }
+        }
+        // console.log("Id added:", id);
+
+        if (id) {
+          if (!stopIds.includes(id)) {
+            const newStopIds = [...stopIds, id];
+            // console.log("New stop IDS:", newStopIds)
+            setStopIds(newStopIds)
+          } else {
+            alert(`'Stop ${chosenBusStopObject.stopLetter}: ${chosenBusStopObject.name}' is already on your infoboard.`)
+          }
+        }
 
 
 
       })
       .catch(error => {
-        console.error('Error fetching stop point ID:', error);
+        console.error('Error fetching stop point naptanID:', error);
       })
 
+
+
+
+  })
+      .catch (error => {
+    console.error('Error fetching stop point ID:', error);
+  })
+
+}
+
+function handleAddBusStop() {
+  const stopName = prompt("Enter the name of the bus stop you would like to add:")
+
+  if (stopName) {
+    setStopID(stopName)
   }
+}
 
-  function handleAddBusStop() {
-    const stopName = prompt("Enter the name of the bus stop you would like to add:")
+function removeBusStop(idToRemove) {
 
-    if (stopName) {
-      setStopID(stopName)
-    }
-  }
-
-  function removeBusStop(idToRemove) {
-
-    const updatedStopIds = stopIds.filter(id => id !== idToRemove);
-    setStopIds(updatedStopIds)
-  }
+  const updatedStopIds = stopIds.filter(id => id !== idToRemove);
+  setStopIds(updatedStopIds)
+}
 
 
-  return (
-    <div className="bustimebox-container">
-      {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
-      {stopIds.length < 6 && (
-        <div className='add-bus-button-container'>
-          <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
-        </div>
-      )}
-    </div>
-  )
+return (
+  <div className="bustimebox-container">
+    {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
+    {stopIds.length < 6 && (
+      <div className='add-bus-button-container'>
+        <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
+      </div>
+    )}
+  </div>
+)
 }
 
 function BusTimeBox({ stopId, handleRemoveBusStop }) {
@@ -433,7 +441,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
   const contentRef = useRef(null); // Ref to access the bustimebox-content div
 
   useEffect(() => {
-    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}`)
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}?app_key=ab8fb89349364c56b2a597d938d04025`)
       .then(response => response.json())
       .then(data => {
         data = data.children.filter(child => child.id === stopId)[0]
@@ -451,7 +459,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
   const fetchBusTimes = () => {
     // console.log("Fetching bus times...");
 
-    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals`)    // Fetch bus times from TfL API
+    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}/Arrivals?app_key=ab8fb89349364c56b2a597d938d04025`)    // Fetch bus times from TfL API
 
       .then(response => {
         // Log the raw response
@@ -487,7 +495,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
     fetchBusTimes();
 
     // interval to fetch data every 10 seconds
-    const intervalId = setInterval(fetchBusTimes, 10000);
+    const intervalId = setInterval(fetchBusTimes, 1000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
@@ -506,12 +514,20 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
     <div className="bustimebox">
       <div className='bustimebox-header'>
         <div className="bustimebox-name">
-        {busStopInfo && busStopInfo.stopLetter ? (
-          <>
-            <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
-            <p className="bus-towards"> towards {busStopInfo.additionalProperties.find(property => property.key === "Towards")?.value} </p>
-          </>
-        ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
+          {busStopInfo && busStopInfo.stopLetter ? (
+            <>
+              <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
+              <p className="bus-towards"> towards {(
+                  busStopInfo.additionalProperties.filter(property => property.category === "Direction").length > 0
+                    ?
+                    (busStopInfo.additionalProperties.filter(property => property.key === "Towards").length > 0 
+                    ? 
+                    busStopInfo.additionalProperties.filter(property => property.key === "Towards")[0].value 
+                    : 
+                    busStopInfo.additionalProperties.filter(property => property.category === "Direction")[0].value)
+                  : "Unknown")} </p>
+            </>
+          ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
 
         </div>
         <button className="remove-bus-button" onClick={handleRemoveBusStop}>-</button>
@@ -548,10 +564,10 @@ function LineStatusContainer() {
   useEffect(() => {
     localStorage.setItem('linesShowing', JSON.stringify(linesShowing));
   }, [linesShowing]);
-  
+
 
   const fetchLineInfo = () => {
-    fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status")
+    fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status?app_key=ab8fb89349364c56b2a597d938d04025")
       .then((response) => {
         // console.log("Unparsed response: ", response)
         return response.json();
@@ -612,7 +628,7 @@ function LineStatusContainer() {
     // Initial fetch
     fetchLineInfo();
 
-    const intervalId = setInterval(fetchLineInfo, 6000);
+    const intervalId = setInterval(fetchLineInfo, 30000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);

@@ -351,7 +351,7 @@ body {
   cursor: pointer;
 }
 
-.line-name:hover .remove-line-button {
+.line-status-content:hover .remove-line-button {
   display: flex;
 }
 
