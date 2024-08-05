@@ -5,6 +5,43 @@ function App() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentHour, setCurrentHour] = useState(0);
   const [currentDate, setCurrentDate] = useState("")
+  const [currentLocation, setCurrentLocation] = useState("Somondoco");
+
+  function getUserLocation() {
+
+    let preference = prompt("Enter a city name you would like to check the weather for, or enter 'Current location'")
+
+    if (preference.toLowerCase() === "current location") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            console.log('Latitude:', latitude, 'Longitude:', longitude);
+            // Use the coordinates to get weather information
+            setCurrentLocation(latitude + "," + longitude);
+          },
+          (error) => {
+            console.error('Error getting location:', error);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
+    } else{
+      setCurrentLocation(preference)
+    }
+
+    
+
+  }
+
+
+
 
   useEffect(() => {
     const updateTime = () => {
@@ -27,27 +64,28 @@ function App() {
 
   return (
     <div className="App">
-      <Description time={currentTime} date={currentDate} />
-      <Weather hour={currentHour} />
+      <Description time={currentTime} date={currentDate} location={currentLocation} handleLocClick={getUserLocation}/>
+      <Weather hour={currentHour} location={currentLocation} />
       <BusTimeBoxContainer />
       <LineStatusContainer />
     </div>
   );
 }
 
-function Description({ time, date }) {
+function Description({ time, date, location="Somondoco", handleLocClick }) {
   return (
     <header className="App-header">
       <p className="app-title">Daniel's infoboard using React JS</p>
-      <p className="app-time">{time}</p>
-      <p className='app-date'>{date}</p>
+      <p className="app-time">{date}, {time}</p>
+      <p className='app-location' onClick={handleLocClick}>{location}</p>
     </header>
   );
 }
 
-function Weather({ hour }) {
+function Weather({ hour, location }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [allPreferences, setAllPreferences] = useState([]);
+  const [currentHour, setCurrentHour] = useState(hour)
 
 
   const [hoursShowing, setHoursShowing] = useState(JSON.parse(localStorage.getItem('hoursShowing')) ? JSON.parse(localStorage.getItem('hoursShowing')) : 10)
@@ -82,13 +120,13 @@ function Weather({ hour }) {
   }
 
   function getWeatherInfo() {
-    fetch("https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=London&days=2&aqi=no")
+    fetch(`https://api.weatherapi.com/v1/forecast.json?key=a90a46dca4824a389b735402242907&q=${location}&days=2&aqi=yes&alerts=no`)
       .then(response => {
         // console.log("Raw response: ", response)
         return response.json();
       })
       .then(data => {
-        // console.log("Forecast Data", data)
+        console.log("Forecast Data", data)
         // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
@@ -126,10 +164,14 @@ function Weather({ hour }) {
         }
 
         // console.log("Preferences", preferences)
-        // console.log("Forecast: ", forecastFetched)
+        console.log("Forecast: ", forecastFetched)
         preferences = preferences.filter(preference => preference !== "time")
         setAllPreferences(preferences)
         setForecast(forecastFetched);
+        setCurrentHour(formatTime(data.location.localtime, true))
+      })
+      .catch(error => {
+        console.error('Error fetching Weather forecast info:', error);
       });
   }
 
@@ -138,8 +180,9 @@ function Weather({ hour }) {
     if (allPreferences.length > 0) {
       let preference = prompt("Please enter a weather parameter you would like to add:\n" + allPreferences.join(", "))
 
-      if (preference.length === 0) {
+      if (preference === null) {
         return;
+
       } else {
         if (preference.toLowerCase() === "uv index") {
           preference = preference.charAt(0).toUpperCase() + preference.charAt(1).toUpperCase() + preference.slice(2);
@@ -152,7 +195,8 @@ function Weather({ hour }) {
       if (allPreferences.includes(preference)) {
         setPreferences([...preferences, preference])
       } else {
-        alert("'" + preference + "' isn't one of our available preferences.")
+        alert("'" + preference + "' isn't one of our available preferences. Please try again.")
+        addPreference()
       }
     }
   }
@@ -166,7 +210,7 @@ function Weather({ hour }) {
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [preferences]);
+  }, [preferences, location]);
 
   function addHour() {
     const newHoursShowing = hoursShowing + 1
@@ -188,7 +232,7 @@ function Weather({ hour }) {
   return (
     <div className='weather-container'>
       <div className="weather">
-        {forecast.slice(hour - 1, hour + hoursShowing).map((forecastHourItem, index) => {
+        {forecast.slice(currentHour - 1, currentHour + hoursShowing).map((forecastHourItem, index) => {
 
           const last = (index === hoursShowing)
 
@@ -278,6 +322,8 @@ function BusTimeBoxContainer() {
 
         let locID = null;
 
+
+
         if (nameMatches.length > 1) {
           let nameMatchesStr = ""
           for (const nameObj of nameMatches) {
@@ -287,12 +333,29 @@ function BusTimeBoxContainer() {
 
           // console.log("Name matches string:", nameMatchesStr)
 
-          const name = prompt("Please enter the specific bus stop: " + nameMatchesStr)
 
-          // const name = "Muswell Hill Road"
+          let valid = false;
 
-          // console.log(nameMatches.filter(nameMatch => nameMatch.name === name))
-          locID = nameMatches.filter(nameMatch => nameMatch.name.toLowerCase() === name.toLowerCase())[0].id
+          while (valid === false) {
+
+            let name = prompt("Please enter the specific bus stop: " + nameMatchesStr)
+
+            if (name === null) {
+              return;
+            }
+
+            // const name = "Muswell Hill Road"
+
+            // console.log(nameMatches.filter(nameMatch => nameMatch.name === name))
+            let nameMatchMatches = nameMatches.filter(nameMatch => nameMatch.name.toLowerCase() === name.toLowerCase())
+
+            if (nameMatchMatches.length > 0) {
+              locID = nameMatchMatches[0].id
+              valid = true;
+            } else {
+              alert(`${name} isn't one of our listed bus stop names.`)
+            }
+          }
         } else {
           locID = nameMatches[0].id
         }
@@ -307,7 +370,7 @@ function BusTimeBoxContainer() {
           .then(response => response.json())
           .then(data => {
 
-            // console.log(`Data received from fetch 2 (${call2}):`, data);
+            console.log(`Data received from fetch 2 (${call2}):`, data);
 
 
             // CODE TO EXECUTE IF STOPTYPE != naptanonstreetbuscoach:
@@ -344,95 +407,122 @@ function BusTimeBoxContainer() {
                 towards: (
                   child.additionalProperties.filter(property => property.category === "Direction").length > 0
                     ?
-                    (child.additionalProperties.filter(property => property.key === "Towards").length > 0 
-                    ? 
-                    child.additionalProperties.filter(property => property.key === "Towards")[0].value 
-                    : 
-                    child.additionalProperties.filter(property => property.category === "Direction")[0].value)
-                  : "Unknown")
+                    (child.additionalProperties.filter(property => property.key === "Towards").length > 0
+                      ?
+                      child.additionalProperties.filter(property => property.key === "Towards")[0].value
+                      :
+                      child.additionalProperties.filter(property => property.category === "Direction")[0].value)
+                    : "Unknown")
+              })
             })
+
+
+            // console.log("Bus Stops:", busStops)
+
+            let stopList = ""
+            let stopLettersStr = "("
+
+            for (const busStop of busStops) {
+              stopList += `\nStop ${busStop.stopLetter} - Towards ${busStop.towards}`
+              stopLettersStr += `${busStop.stopLetter}, `
+            }
+
+            stopLettersStr = stopLettersStr.slice(0, -2)
+            stopLettersStr += ")"
+
+            let valid = false;
+
+            let indicator = ""
+
+            while (valid === false) {
+
+              indicator = prompt(`Please enter the key ${stopLettersStr} of the bus stop you would like to add:${stopList}`)
+
+              if (indicator === null) {
+                return;
+              }
+
+
+              let id = ""
+              let chosenBusStopObject = {}
+
+
+
+              for (const busStop of busStops) {
+                if (busStop.stopLetter.toLowerCase() === indicator.toLowerCase()) {
+                  id = busStop.naptanId
+                  chosenBusStopObject = busStop;
+                }
+              }
+              // console.log("Id added:", id);
+
+              if (id) {
+                if (!stopIds.includes(id)) {
+                  const newStopIds = [...stopIds, id];
+                  // console.log("New stop IDS:", newStopIds)
+                  setStopIds(newStopIds)
+                } else {
+                  alert(`'Stop ${chosenBusStopObject.stopLetter}: ${chosenBusStopObject.name}' is already on your infoboard.`)
+                }
+                valid = true;
+              } else {
+                alert(`Stop ${indicator} wasn't one of our options.`)
+              }
+            }
+
+
+
+          })
+          .catch(error => {
+            console.error('Error fetching Bus Stops (fetch 2):', error);
+            alert('Error fetching corresponding bus stops.');
+
           })
 
-
-        // console.log("Bus Stops:", busStops)
-
-        let stopList = ""
-        let stopLettersStr = "("
-
-        for (const busStop of busStops) {
-          stopList += `\nStop ${busStop.stopLetter} - Towards ${busStop.towards}`
-          stopLettersStr += `${busStop.stopLetter}, `
-        }
-
-        stopLettersStr = stopLettersStr.slice(0, -2)
-        stopLettersStr += ")"
-
-        const indicator = prompt(`Please enter the key ${stopLettersStr} of the bus stop you would like to add:${stopList}`)
-
-
-        let id = ""
-        let chosenBusStopObject = {}
-
-        for (const busStop of busStops) {
-          if (busStop.stopLetter.toLowerCase() === indicator.toLowerCase()) {
-            id = busStop.naptanId
-            chosenBusStopObject = busStop;
-          }
-        }
-        // console.log("Id added:", id);
-
-        if (id) {
-          if (!stopIds.includes(id)) {
-            const newStopIds = [...stopIds, id];
-            // console.log("New stop IDS:", newStopIds)
-            setStopIds(newStopIds)
-          } else {
-            alert(`'Stop ${chosenBusStopObject.stopLetter}: ${chosenBusStopObject.name}' is already on your infoboard.`)
-          }
-        }
 
 
 
       })
       .catch(error => {
-        console.error('Error fetching stop point naptanID:', error);
+        alert('Error fetching StopPointID.');
+
+        console.error('Error fetching StopPointID (fetch 1):', error);
       })
 
-
-
-
-  })
-      .catch (error => {
-    console.error('Error fetching stop point ID:', error);
-  })
-
-}
-
-function handleAddBusStop() {
-  const stopName = prompt("Enter the name of the bus stop you would like to add:")
-
-  if (stopName) {
-    setStopID(stopName)
   }
-}
 
-function removeBusStop(idToRemove) {
+  function handleAddBusStop() {
+    const stopName = prompt("Enter the name of the bus stop you would like to add:")
 
-  const updatedStopIds = stopIds.filter(id => id !== idToRemove);
-  setStopIds(updatedStopIds)
-}
+    if (stopName) {
+      setStopID(stopName)
+    } else {
+      if (stopName === null) {
+        return;
+      } else {
+        alert(`'${stopName}' isn't a registered bus stop name. Please try again.`)
+        handleAddBusStop()
+      }
+    }
+  }
+
+  function removeBusStop(idToRemove) {
+
+    const updatedStopIds = stopIds.filter(id => id !== idToRemove);
+    setStopIds(updatedStopIds)
+  }
 
 
-return (
-  <div className="bustimebox-container">
-    {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
-    {stopIds.length < 6 && (
-      <div className='add-bus-button-container'>
-        <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
-      </div>
-    )}
-  </div>
-)
+  return (
+    <div className="bustimebox-container">
+      {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
+      {stopIds.length < 6 && (
+        <div className='add-bus-button-container'>
+          <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function BusTimeBox({ stopId, handleRemoveBusStop }) {
@@ -453,7 +543,9 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
           setBusStopInfo(newBusStopInfo);
         }
       }
-      )
+      ).catch(error => {
+        console.error('Error fetching Bus Stop Info:', error);
+      })
   }, [])
 
   const fetchBusTimes = () => {
@@ -484,7 +576,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
       })
       .catch(error => {
         // Log any errors that occur during the fetch
-        console.error('Error fetching bus times:', error);
+        console.error('Error fetching bus arrival times:', error);
       });
 
     // console.log("Bus times updated!")
@@ -518,12 +610,12 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
             <>
               <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
               <p className="bus-towards"> towards {(
-                  busStopInfo.additionalProperties.filter(property => property.category === "Direction").length > 0
+                busStopInfo.additionalProperties.filter(property => property.category === "Direction").length > 0
+                  ?
+                  (busStopInfo.additionalProperties.filter(property => property.key === "Towards").length > 0
                     ?
-                    (busStopInfo.additionalProperties.filter(property => property.key === "Towards").length > 0 
-                    ? 
-                    busStopInfo.additionalProperties.filter(property => property.key === "Towards")[0].value 
-                    : 
+                    busStopInfo.additionalProperties.filter(property => property.key === "Towards")[0].value
+                    :
                     busStopInfo.additionalProperties.filter(property => property.category === "Direction")[0].value)
                   : "Unknown")} </p>
             </>
@@ -679,7 +771,7 @@ function LineStatusContainer() {
     }
 
     if (!validLine) {
-      alert("Please enter a correct lines out of our list of lines: " + lineList)
+      alert(`'${lineName}' isn't in our list of supported lines. Please enter a correct line out of our list of lines: ` + lineList)
       addLine()
     }
     // setLinesShowing(["piccadilly", "victoria"])
