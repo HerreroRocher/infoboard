@@ -3,10 +3,28 @@ import './App.css';
 
 function App() {
   const [currentTime, setCurrentTime] = useState('');
+  const [currentTimeISO, setCurrentTimeISO] = useState('');
   const [currentHour, setCurrentHour] = useState(0);
   const [currentDate, setCurrentDate] = useState("")
   const [location, setCurrentLocation] = useState(JSON.parse(localStorage.getItem('location')) ? JSON.parse(localStorage.getItem('location')) : "London");
-  const [locationStr, setLocationStr] = useState ("")
+  const [locationStr, setLocationStr] = useState("")
+  const [localTime, setLocalTime] = useState("")
+  const [offset, setOffset] = useState(0)
+
+  useEffect(() => {
+    // console.log("Offset = ", offset)
+    // console.log("currentTimeISO = ", currentTimeISO)
+    const date = new Date(currentTimeISO)
+    date.setHours(date.getHours() + (offset ? offset : 0))
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    const localTimeStr = `${hours}:${minutes}:${seconds}`;
+    setLocalTime(localTimeStr)
+
+  }, [currentTime, offset])
 
   useEffect(() => {
     localStorage.setItem('location', JSON.stringify(location));
@@ -16,8 +34,8 @@ function App() {
 
     let preference = prompt("Enter a city name you would like to check the weather for, or enter 'Current location'")
 
-    if (preference === null || preference === ""){
-      return ;
+    if (preference === null || preference === "") {
+      return;
     }
 
     if (preference.toLowerCase() === "current location") {
@@ -25,7 +43,7 @@ function App() {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
-            console.log('Latitude:', latitude, 'Longitude:', longitude);
+            // console.log('Latitude:', latitude, 'Longitude:', longitude);
             // Use the coordinates to get weather information
             setCurrentLocation(latitude + "," + longitude);
           },
@@ -41,11 +59,11 @@ function App() {
       } else {
         console.error('Geolocation is not supported by this browser.');
       }
-    } else{
+    } else {
       setCurrentLocation(preference)
     }
 
-    
+
 
   }
 
@@ -55,43 +73,57 @@ function App() {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const date = now.toLocaleDateString("en-GB", { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+
+      // Format the date as YYYY-MM-DD
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const datePart = `${year}-${month}-${day}`;
+
+      // Format the time as HH:MM:SS
       const hours = String(now.getHours()).padStart(2, '0');
-      const hoursInt = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timePart = `${hours}:${minutes}:${seconds}`;
+
+      // Combine date and time to ISO 8601 format
+      const isoFormatDate = `${datePart}T${timePart}`;
+
+      setCurrentTimeISO(isoFormatDate);
+      console.log("currentTimeISO set to", isoFormatDate)
       setCurrentTime(`${hours}:${minutes}:${seconds}`);
-      setCurrentHour(hoursInt);
-      setCurrentDate(date)
+      setCurrentHour(now.getHours());
+      setCurrentDate(now.toLocaleDateString("en-GB", { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }));
     };
 
+    // Update the time immediately and then every second
     updateTime();
-    const intervalId = setInterval(updateTime, 100);
+    const intervalId = setInterval(updateTime, 1000);
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   return (
     <div className="App">
-      <Description time={currentTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation}/>
-      <Weather hour={currentHour} location={location} updateLocationStr={setLocationStr}/>
+      <Description time={currentTime} localTime={localTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation} offset={offset} />
+      <Weather hour={currentHour} location={location} updateLocationStr={setLocationStr} setOffset={setOffset} currentTimeISO={currentTimeISO} />
       <BusTimeBoxContainer />
       <LineStatusContainer />
     </div>
   );
 }
 
-function Description({ time, date, location, handleLocClick }) {
+function Description({ time, date, location, handleLocClick, localTime, offset }) {
   return (
     <header className="App-header">
       <p className="app-title">Daniel's infoboard using React JS</p>
       <p className="app-time">{date}, {time}</p>
-      <p className='app-location' onClick={handleLocClick}>{location}</p>
+      <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null: `(${localTime})`}</p>
     </header>
   );
 }
 
-function Weather({ hour, location, updateLocationStr }) {
+function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [allPreferences, setAllPreferences] = useState([]);
   const [currentHour, setCurrentHour] = useState(hour)
@@ -179,6 +211,36 @@ function Weather({ hour, location, updateLocationStr }) {
         setForecast(forecastFetched);
         setCurrentHour(formatTime(data.location.localtime, true))
         updateLocationStr(data.location.name + ", " + data.location.country)
+
+        function getTimeOffset(currentTimeDate, localTimeDate) { //Time dates in form '2024-08-05T21:41:00'
+          const currentDate = new Date(currentTimeDate)
+          const localDate = new Date(localTimeDate)
+          const timeDiffMill = localDate - currentDate
+          const diffHours = Math.ceil((timeDiffMill % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+          return diffHours;
+        }
+
+        function convertToISOFormat(localTimeDate) {
+          const [date, time] = localTimeDate.split(' ');
+          const [hours, mins] = time.split(':');
+          const paddedHours = hours.padStart(2, '0');
+          const paddedMins = mins.padStart(2, '0');
+          return `${date}T${paddedHours}:${paddedMins}:00`;
+        }
+
+        const localTimeISO = convertToISOFormat(data.location.localtime) //CONFIRMED FUNCTIONAL
+
+        console.log("currentTimeISO", currentTimeISO)
+        console.log("localTlocalTimeISO",localTimeISO)
+        const offset = getTimeOffset(currentTimeISO, localTimeISO)
+        setOffset(offset)
+        console.log("Offset = ", offset)
+
+
+
+
+
+
       })
       .catch(error => {
         console.error('Error fetching Weather forecast info:', error);
@@ -220,7 +282,7 @@ function Weather({ hour, location, updateLocationStr }) {
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [preferences, location]);
+  }, [preferences, location, currentTimeISO === '']);
 
   function addHour() {
     const newHoursShowing = hoursShowing + 1
