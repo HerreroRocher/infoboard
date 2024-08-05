@@ -20,7 +20,7 @@ function App() {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+
     const localTimeStr = `${hours}:${minutes}:${seconds}`;
     setLocalTime(localTimeStr)
 
@@ -118,7 +118,7 @@ function Description({ time, date, location, handleLocClick, localTime, offset }
     <header className="App-header">
       <p className="app-title">Daniel's infoboard using React JS</p>
       <p className="app-time">{date}, {time}</p>
-      <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null: `(${localTime})`}</p>
+      <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null : `(${localTime})`}</p>
     </header>
   );
 }
@@ -231,7 +231,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
         const localTimeISO = convertToISOFormat(data.location.localtime) //CONFIRMED FUNCTIONAL
 
         console.log("currentTimeISO", currentTimeISO)
-        console.log("localTlocalTimeISO",localTimeISO)
+        console.log("localTlocalTimeISO", localTimeISO)
         const offset = getTimeOffset(currentTimeISO, localTimeISO)
         setOffset(offset)
         console.log("Offset = ", offset)
@@ -278,7 +278,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
     getWeatherInfo();
 
     // interval to fetch data every 10 minutes
-    const intervalId = setInterval(getWeatherInfo, 60000);
+    const intervalId = setInterval(getWeatherInfo, 600000);
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
