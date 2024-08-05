@@ -5,11 +5,20 @@ function App() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentHour, setCurrentHour] = useState(0);
   const [currentDate, setCurrentDate] = useState("")
-  const [currentLocation, setCurrentLocation] = useState("Somondoco");
+  const [location, setCurrentLocation] = useState(JSON.parse(localStorage.getItem('location')) ? JSON.parse(localStorage.getItem('location')) : "London");
+  const [locationStr, setLocationStr] = useState ("")
+
+  useEffect(() => {
+    localStorage.setItem('location', JSON.stringify(location));
+  }, [location]);
 
   function getUserLocation() {
 
     let preference = prompt("Enter a city name you would like to check the weather for, or enter 'Current location'")
+
+    if (preference === null || preference === ""){
+      return ;
+    }
 
     if (preference.toLowerCase() === "current location") {
       if (navigator.geolocation) {
@@ -64,15 +73,15 @@ function App() {
 
   return (
     <div className="App">
-      <Description time={currentTime} date={currentDate} location={currentLocation} handleLocClick={getUserLocation}/>
-      <Weather hour={currentHour} location={currentLocation} />
+      <Description time={currentTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation}/>
+      <Weather hour={currentHour} location={location} updateLocationStr={setLocationStr}/>
       <BusTimeBoxContainer />
       <LineStatusContainer />
     </div>
   );
 }
 
-function Description({ time, date, location="Somondoco", handleLocClick }) {
+function Description({ time, date, location, handleLocClick }) {
   return (
     <header className="App-header">
       <p className="app-title">Daniel's infoboard using React JS</p>
@@ -82,7 +91,7 @@ function Description({ time, date, location="Somondoco", handleLocClick }) {
   );
 }
 
-function Weather({ hour, location }) {
+function Weather({ hour, location, updateLocationStr }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [allPreferences, setAllPreferences] = useState([]);
   const [currentHour, setCurrentHour] = useState(hour)
@@ -169,6 +178,7 @@ function Weather({ hour, location }) {
         setAllPreferences(preferences)
         setForecast(forecastFetched);
         setCurrentHour(formatTime(data.location.localtime, true))
+        updateLocationStr(data.location.name + ", " + data.location.country)
       })
       .catch(error => {
         console.error('Error fetching Weather forecast info:', error);
