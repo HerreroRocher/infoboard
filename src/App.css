@@ -146,6 +146,7 @@ body {
   justify-content: space-around;
   width: 100%;
   align-items: center;
+  flex-wrap: wrap;
   /* 20px to rem */
 }
 
@@ -193,7 +194,7 @@ body {
   /* 5px to rem */
   width: 30%;
   height: 50vh;
-  flex: 1;
+  flex: 1 1 calc(30% - 20px); /* Ensures each item takes 30% of the container width and allows wrapping */
 }
 
 .bustimebox-name {
