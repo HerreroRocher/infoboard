@@ -588,10 +588,11 @@ function BusTimeBoxContainer() {
   return (
     <div className="bustimebox-container">
       {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
-      <div className='add-bus-button-container'>
-        <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
-      </div>
-
+      {stopIds.length < 6 && (
+        <div className='add-bus-button-container'>
+          <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
+        </div>
+      )}
     </div>
   )
 }
