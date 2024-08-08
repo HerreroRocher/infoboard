@@ -340,12 +340,12 @@ body {
   /* Ensure the boxes take equal space */
   margin: 10px;
   /* Optional: spacing between the boxes */
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
   /* Optional: for visibility */
   padding: 10px;
   /* Optional: for spacing */
   box-sizing: border-box;
-  background-color: white;
+  /* background-color: white; */
   width: calc(40% - 1.25rem); /* Adjust the width calculation */
 
 }

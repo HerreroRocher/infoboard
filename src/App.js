@@ -741,6 +741,40 @@ function LineStatusContainer({ editMode }) {
     localStorage.setItem('linesShowing', JSON.stringify(linesShowing));
   }, [linesShowing]);
 
+  const tubeBackgroundColours = {
+    "piccadilly": "#0019A8",
+    "bakerloo": "#B26313",
+    "central": "#DC241F",
+    "circle": "#FFD329",
+    "district": "#007D32",
+    "hammersmith-city": "#F4A9BE",
+    "jubilee": "#A1A5A7",
+    "metropolitan": "#9B0058",
+    "northern": "#000",
+    "victoria": "#0098D8",
+    "waterloo-city": "#93CEBA"
+  }
+
+  const tubeTextColours = {
+    "piccadilly": "white",
+    "bakerloo": "#fff",
+    "central": "white",
+    "circle": "#0019A8",
+    "district": "white",
+    "hammersmith-city": "#0019A8",
+    "jubilee": "white",
+    "metropolitan": "white",
+    "northern": "#fff",
+    "victoria": "white",
+    "waterloo-city": "#0019A8"
+  }
+
+  function getTubeTextBackgroundColours(tubeID){
+
+    // console.log("Colors:", [tubeTextColours[tubeID], tubeBackgroundColours[tubeID]])
+
+    return [tubeTextColours[tubeID], tubeBackgroundColours[tubeID]]
+  }
 
   const fetchLineInfo = () => {
     fetch("https://api.tfl.gov.uk/Line/Mode/tube/Status?app_key=ab8fb89349364c56b2a597d938d04025")
@@ -749,7 +783,7 @@ function LineStatusContainer({ editMode }) {
         return response.json();
       })
       .then((data) => {
-        // console.log("JSON Parsed response: ", data)
+        console.log("JSON Parsed response: ", data)
 
         let allLineStatuses = [];
 
@@ -866,7 +900,7 @@ function LineStatusContainer({ editMode }) {
       {linesInfo ? (
         linesShowing.map((lineName, index) => {
           const lineObject = linesInfo.find(line => line.name.toLowerCase() === lineName.toLowerCase())
-          return (lineObject ? <LineStatusBox editMode={editMode} lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
+          return (lineObject ? <LineStatusBox getColours={getTubeTextBackgroundColours} editMode={editMode} lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
         })
       ) : (
         <p>Loading...</p>
@@ -882,20 +916,24 @@ function LineStatusContainer({ editMode }) {
   )
 }
 
-function LineStatusBox({ lineObject, handleRemoveLine, editMode }) {
+function LineStatusBox({ lineObject, handleRemoveLine, editMode, getColours }) {
   const [isVisible, setIsVisible] = useState(true);
 
   const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
   const severityTextColour = (lineObject.statusSeverity === 20 ? "white" : "black")
+
+  console.log(lineObject)
 
 
   const toggleVisibility = () => {
     setIsVisible(prevState => !prevState);
   };
 
+  const [textColour, backgroundColor] = getColours(lineObject.id)
+
 
   return (
-    <div className="line-status-box">
+    <div className="line-status-box" style={{backgroundColor:backgroundColor, color:textColour}}>
       <div className="line-status-content">
         <div className="line-name">
           {lineObject.name} Line
@@ -911,7 +949,7 @@ function LineStatusBox({ lineObject, handleRemoveLine, editMode }) {
 
       </div>
       {isVisible && (
-        <div className="disruption-reason">
+        <div className="disruption-reason" style={{color:"black"}}>
           {lineObject.reason}
         </div>
       )}
