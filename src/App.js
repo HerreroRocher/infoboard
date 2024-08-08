@@ -872,7 +872,7 @@ function LineStatusContainer({ editMode }) {
         <p>Loading...</p>
       )}
 
-      {linesShowing.length < 4 && editMode && (
+      {editMode && (
         <div className='add-line'>
           <button className='add-line-button' onClick={addLine}>+</button>
         </div>
