@@ -675,7 +675,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
   return (
     <div className="bustimebox">
       <div className='bustimebox-header'>
-        <div className="bustimebox-name">
+        <div className="bustimebox-name" style={{borderBottom: 'white solid'}}>
           {busStopInfo && busStopInfo.stopLetter ? (
             <>
               <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>

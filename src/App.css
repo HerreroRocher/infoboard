@@ -1,6 +1,6 @@
 html,
 body {
-  background-color: #eb9b3f;
+  background-color: rgb(103, 0, 0);
   overflow-x: hidden;
   width: 100%;
   margin: 0;
@@ -30,7 +30,6 @@ body {
 }
 
 .App-header {
-  background-color: #001c53;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -56,7 +55,7 @@ body {
 .add-hour-button {
   background-color: rgb(12, 151, 12);
   /* border: none; */
-  border: 0.2rem solid rgb(180, 153, 253);
+  border: 0.25rem solid rgba(210, 210, 210, 0.5);
   /* border-top: 0.2rem solid rgb(180, 153, 253); */
   border-radius: 15%;
   color: white;
@@ -69,6 +68,8 @@ body {
 .weather:hover .add-hour-button {
   display: block;
 }
+
+
 
 .weather-container:hover .add-preference-button {
   display: block;
@@ -84,7 +85,7 @@ body {
 
 .weather {
   border-color: black;
-  background-color: rgb(180, 153, 253);
+  background-color: rgba(210, 210, 210, 0.5);
   border-radius: 0.3125rem;
   /* 5px to rem */
   border-width: thick;
@@ -190,7 +191,7 @@ body {
   padding-top: 0;
   margin: 0.625rem;
   /* 10px to rem */
-  background-color: lightblue;
+  background-color: black;
   border-radius: 0.3125rem;
   /* 5px to rem */
   width: calc(30% - 1.25rem); /* Adjust the width calculation */
@@ -213,13 +214,13 @@ body {
 }
 
 .bustime-one {
-  background-color: beige;
   width: 100%;
   display: flex;
   justify-content: space-between;
   margin: 0.125rem;
   /* 2px to rem */
   font-size: 60%;
+  color: orange;
 }
 
 .busTime {
@@ -257,7 +258,7 @@ body {
   justify-content: space-around;
   align-items: center;
   margin-top: 10px;
-  background-color: rgb(145, 202, 221);
+  color: white;
 
 }
 
@@ -306,7 +307,7 @@ body {
   width: 100%;
   background-color: eb9b3f;
   /* Optional: for visibility */
-  padding: 10px;
+  padding-top: 10px;
   /* Optional: for spacing */
 }
 
