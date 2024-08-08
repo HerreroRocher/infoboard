@@ -13,14 +13,22 @@ body {
 
 .app-time,
 .app-location,
+.app-location-no-hover,
 .app-title {
   flex: 0 1 auto;
   margin: 0px;
 }
 
+.app-location{
+  transition: background-color 0.3s ease;
+  transition: color 0.3s ease;
+
+}
+
 .app-location:hover {
   cursor: pointer;
-  background-color: black;
+  background-color: rgb(81, 249, 90);
+  color: black;
 }
 
 .app-time {
@@ -38,6 +46,24 @@ body {
   color: white;
   padding: 10px;
 
+}
+
+.edit-button {
+  background-color: #4CAF50; /* Green background */
+  border: none;
+  color: white;
+  /* padding: 10px 20px; */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  /* margin: 4px 2px; */
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #072d09; /* Darker green on hover */
 }
 
 .add-preference-button {
@@ -91,8 +117,6 @@ body {
   border-width: thick;
   display: flex;
   flex-wrap: nowrap;
-  margin-top: 1%;
-
 }
 
 .weather-box {

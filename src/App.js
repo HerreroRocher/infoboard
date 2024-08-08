@@ -10,6 +10,7 @@ function App() {
   const [locationStr, setLocationStr] = useState("")
   const [localTime, setLocalTime] = useState("")
   const [offset, setOffset] = useState(0)
+  const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
     // console.log("Offset = ", offset)
@@ -90,7 +91,7 @@ function App() {
       const isoFormatDate = `${datePart}T${timePart}`;
 
       setCurrentTimeISO(isoFormatDate);
-      console.log("currentTimeISO set to", isoFormatDate)
+      // console.log("currentTimeISO set to", isoFormatDate)
       setCurrentTime(`${hours}:${minutes}:${seconds}`);
       setCurrentHour(now.getHours());
       setCurrentDate(now.toLocaleDateString("en-GB", { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }));
@@ -105,28 +106,32 @@ function App() {
 
   return (
     <div className="App">
-      <Description time={currentTime} localTime={localTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation} offset={offset} />
-      <Weather hour={currentHour} location={location} updateLocationStr={setLocationStr} setOffset={setOffset} currentTimeISO={currentTimeISO} />
-      <BusTimeBoxContainer />
-      <LineStatusContainer />
+      <Description editMode={editMode} setEditMode={setEditMode} time={currentTime} localTime={localTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation} offset={offset} />
+      <Weather editMode={editMode} hour={currentHour} location={location} updateLocationStr={setLocationStr} setOffset={setOffset} currentTimeISO={currentTimeISO} />
+      <BusTimeBoxContainer editMode={editMode} />
+      <LineStatusContainer editMode={editMode} />
     </div>
   );
 }
 
-function Description({ time, date, location, handleLocClick, localTime, offset }) {
+function Description({ time, date, location, handleLocClick, localTime, offset, editMode, setEditMode }) {
   return (
     <header className="App-header">
-      <p className="app-title">Daniel's infoboard using React JS</p>
+      <p className="app-title">Daniel's infoboard using React JS {editMode ? <button className="edit-button" onClick={() => setEditMode(false)}>Save</button> : <button className="edit-button" onClick={() => setEditMode(true)}>Edit</button>}</p>
       <p className="app-time">{date}, {time}</p>
-      <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null : `(${localTime})`}</p>
+      {editMode ? <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null : `(${localTime})`}</p>
+        : <p className='app-location-no-hover'>{location}{offset === 0 ? null : `(${localTime})`}</p>
+      }
     </header>
   );
 }
 
-function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset }) {
+function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset, editMode }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [allPreferences, setAllPreferences] = useState([]);
   const [currentHour, setCurrentHour] = useState(hour)
+
+  // console.log(currentHour)
 
 
   const [hoursShowing, setHoursShowing] = useState(JSON.parse(localStorage.getItem('hoursShowing')) ? JSON.parse(localStorage.getItem('hoursShowing')) : 10)
@@ -167,7 +172,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
         return response.json();
       })
       .then(data => {
-        console.log("Forecast Data", data)
+        // console.log("Forecast Data", data)
         // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
@@ -205,7 +210,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
         }
 
         // console.log("Preferences", preferences)
-        console.log("Forecast: ", forecastFetched)
+        // console.log("Forecast: ", forecastFetched)
         preferences = preferences.filter(preference => preference !== "time")
         setAllPreferences(preferences)
         setForecast(forecastFetched);
@@ -230,11 +235,11 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
 
         const localTimeISO = convertToISOFormat(data.location.localtime) //CONFIRMED FUNCTIONAL
 
-        console.log("currentTimeISO", currentTimeISO)
-        console.log("localTlocalTimeISO", localTimeISO)
+        // console.log("currentTimeISO", currentTimeISO)
+        // console.log("localTlocalTimeISO", localTimeISO)
         const offset = getTimeOffset(currentTimeISO, localTimeISO)
         setOffset(offset)
-        console.log("Offset = ", offset)
+        // console.log("Offset = ", offset)
 
 
 
@@ -313,7 +318,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
             <div key={index} className="weather-box" >
               <div className="weather-box-hour">
                 <b>{first ? "Time:" : formatTime(forecastHourItem.time, false)}</b>
-                {last && (
+                {last && editMode && (
                   <button className="remove-weather-button" onClick={removeLastHour}>-</button>
                 )}
               </div>
@@ -326,7 +331,10 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
                     {first ? (
                       <p className='condition-name' style={{ margin: "auto", marginBottom: "auto" }}>
                         Condition <br />Icon:
-                        <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
+                        {editMode && (
+                          <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
+                        )}
+
                       </p>
                     ) : (
                       <img
@@ -340,7 +348,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
                   <div key={index} className="weather-box-conditions">
                     <p className='condition-name'>
                       {first ? preference + ":" : forecastHourItem[preference]}
-                      {first && (
+                      {first && editMode && (
                         <button className="remove-condition-button" onClick={() => removePreference(preference)}>-</button>
                       )}
                     </p>
@@ -356,16 +364,19 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset 
 
         })}
 
-        {hoursShowing <= 24 && (
+        {hoursShowing <= 24 && editMode && (
           <button className='add-hour-button' onClick={addHour}>+</button>
         )}
       </div >
-      <button className='add-preference-button' onClick={addPreference}>+</button>
+      {editMode && (
+        <button className='add-preference-button' onClick={addPreference}>+</button>
+      )}
+
     </div>
   );
 }
 
-function BusTimeBoxContainer() {
+function BusTimeBoxContainer({ editMode }) {
   const [stopIds, setStopIds] = useState(JSON.parse(localStorage.getItem('stopIds')) ? JSON.parse(localStorage.getItem('stopIds')) : ["490003564W", "490003564E", "490015187F"])
 
   useEffect(() => {
@@ -385,7 +396,7 @@ function BusTimeBoxContainer() {
       .then(response => response.json())
       .then(data => {
         // Assuming the first result is the correct one
-        // console.log(`Data received from fetch 1 (${call}):`, data);
+        console.log(`Data received from fetch 1 (${call}):`, data);
 
         // const stopPoint = data.matches[0];
         // console.log('Stop Point:', stopPoint);
@@ -587,15 +598,16 @@ function BusTimeBoxContainer() {
 
   return (
     <div className="bustimebox-container">
-      {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} handleRemoveBusStop={() => removeBusStop(stop)} />)}
-      <div className='add-bus-button-container'>
+      {stopIds.map((stop, index) => <BusTimeBox stopId={stop} key={index} editMode={editMode} handleRemoveBusStop={() => removeBusStop(stop)} />)}
+      {editMode && (<div className='add-bus-button-container'>
         <button className='add-bus-button' onClick={handleAddBusStop}>+</button>
-      </div>
+      </div>)}
+
     </div>
   )
 }
 
-function BusTimeBox({ stopId, handleRemoveBusStop }) {
+function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
   const [busTimes, setBusTimes] = useState([]); // State for bus times
   const [busStopInfo, setBusStopInfo] = useState([])
   const contentRef = useRef(null); // Ref to access the bustimebox-content div
@@ -674,8 +686,8 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
 
   return (
     <div className="bustimebox">
-      <div className='bustimebox-header'>
-        <div className="bustimebox-name" style={{borderBottom: 'white solid'}}>
+      <div className='bustimebox-header' style={{ borderBottom: 'white solid' }}>
+        <div className="bustimebox-name" >
           {busStopInfo && busStopInfo.stopLetter ? (
             <>
               <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
@@ -692,7 +704,9 @@ function BusTimeBox({ stopId, handleRemoveBusStop }) {
           ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
 
         </div>
-        <button className="remove-bus-button" onClick={handleRemoveBusStop}>-</button>
+        {editMode && (
+          <button className="remove-bus-button" onClick={handleRemoveBusStop}>-</button>
+        )}
       </div>
       <div className="bustimebox-content" ref={contentRef}>
         {busTimes.map((bus, index) => (
@@ -712,7 +726,7 @@ function BusTime({ busName, busTime, destinationName }) {
   )
 }
 
-function LineStatusContainer() {
+function LineStatusContainer({ editMode }) {
   const [linesInfo, setLinesInfo] = useState([]);
   /*Array like [{name: "Northern", severityStatusDescription: "Good Service", ...}, 
   {name: "Piccadilly", severityStatusDescription: "Bad Service", ...} ]*/
@@ -852,13 +866,13 @@ function LineStatusContainer() {
       {linesInfo ? (
         linesShowing.map((lineName, index) => {
           const lineObject = linesInfo.find(line => line.name.toLowerCase() === lineName.toLowerCase())
-          return (lineObject ? <LineStatusBox lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
+          return (lineObject ? <LineStatusBox editMode={editMode} lineObject={lineObject} key={index} handleRemoveLine={removeLine} /> : null);
         })
       ) : (
         <p>Loading...</p>
       )}
 
-      {linesShowing.length < 4 && (
+      {linesShowing.length < 4 && editMode && (
         <div className='add-line'>
           <button className='add-line-button' onClick={addLine}>+</button>
         </div>
@@ -868,7 +882,7 @@ function LineStatusContainer() {
   )
 }
 
-function LineStatusBox({ lineObject, handleRemoveLine }) {
+function LineStatusBox({ lineObject, handleRemoveLine, editMode }) {
   const [isVisible, setIsVisible] = useState(true);
 
   const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
@@ -885,7 +899,9 @@ function LineStatusBox({ lineObject, handleRemoveLine }) {
       <div className="line-status-content">
         <div className="line-name">
           {lineObject.name} Line
-          <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
+          {editMode && (
+            <button className="remove-line-button" onClick={() => handleRemoveLine(lineObject.name)}>-</button>
+          )}
         </div>
         <div className="status" style={{ backgroundColor: severityBackgroundColor, color: severityTextColour }}>
           {lineObject.statusSeverityDescription}
