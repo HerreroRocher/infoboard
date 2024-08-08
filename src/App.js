@@ -13,7 +13,7 @@ function App() {
   const [editMode, setEditMode] = useState(false)
 
   useEffect(() => {
-    // console.log("Offset = ", offset)
+    console.log("Offset = ", offset)
     // console.log("currentTimeISO = ", currentTimeISO)
     const date = new Date(currentTimeISO)
     date.setHours(date.getHours() + (offset ? offset : 0))
@@ -172,7 +172,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset,
         return response.json();
       })
       .then(data => {
-        // console.log("Forecast Data", data)
+        console.log("Forecast data retreived from weatherapi: ", data)
         // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
@@ -396,7 +396,7 @@ function BusTimeBoxContainer({ editMode }) {
       .then(response => response.json())
       .then(data => {
         // Assuming the first result is the correct one
-        console.log(`Data received from fetch 1 (${call}):`, data);
+        console.log(`Data received from fetch stops which match ${stopName} (${call}):`, data);
 
         // const stopPoint = data.matches[0];
         // console.log('Stop Point:', stopPoint);
@@ -453,7 +453,7 @@ function BusTimeBoxContainer({ editMode }) {
           .then(response => response.json())
           .then(data => {
 
-            console.log(`Data received from fetch 2 (${call2}):`, data);
+            console.log(`Data received from get bus stops with location ID ${locID} (${call2}):`, data);
 
 
             // CODE TO EXECUTE IF STOPTYPE != naptanonstreetbuscoach:
@@ -613,11 +613,30 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
   const contentRef = useRef(null); // Ref to access the bustimebox-content div
 
   useEffect(() => {
-    fetch(`https://api.tfl.gov.uk/StopPoint/${stopId}?app_key=ab8fb89349364c56b2a597d938d04025`)
+
+    const call = `https://api.tfl.gov.uk/StopPoint/${stopId}?app_key=ab8fb89349364c56b2a597d938d04025` 
+    fetch(call)
       .then(response => response.json())
       .then(data => {
-        data = data.children.filter(child => child.id === stopId)[0]
-        // console.log("Bus stop info for stop id:" + stopId, data)
+
+        function getStopFromParentStop(data, id) {
+          let stops = [];
+          if (data.naptanId === id) {
+            stops.push(data)
+          } else {
+            if (data.children && data.children.length > 0) {
+              for (let childIndex = 0; childIndex < data.children.length; childIndex++) {
+                stops = stops.concat(getStopFromParentStop(data.children[childIndex], id))
+              }
+            }
+          }
+
+          return stops
+
+        }
+
+        console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
+        data = getStopFromParentStop(data, stopId)[0]
         const newBusStopInfo = data
         // console.log(newBusStopInfo)
         if (newBusStopInfo) {
@@ -642,7 +661,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
       })
       .then(data => {
         // Log the parsed JSON data
-        // console.log("Parsed data:", data);
+        console.log(`Fetched bus times for stop id ${stopId}:`, data);
 
         // Sort the bus times by arrival time
         const sortedData = data.sort((a, b) => a.timeToStation - b.timeToStation);
@@ -682,6 +701,8 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
 
     setBusTimes(busTimes.slice(0, maxBusTimes + 4)); // Render only the max number of BusTime components
   }, [busTimes.length]);
+
+  console.log("Bus Stop Info:", busStopInfo)
 
 
   return (
@@ -783,7 +804,7 @@ function LineStatusContainer({ editMode }) {
         return response.json();
       })
       .then((data) => {
-        console.log("JSON Parsed response: ", data)
+        console.log("Line status data received from tube line api: ", data)
 
         let allLineStatuses = [];
 
@@ -922,7 +943,7 @@ function LineStatusBox({ lineObject, handleRemoveLine, editMode, getColours }) {
   const severityBackgroundColor = (lineObject.statusSeverity === 20 ? "black" : (lineObject.statusSeverity >= 10 ? "lightgreen" : (lineObject.statusSeverity > 7 ? "yellow" : "red")))
   const severityTextColour = (lineObject.statusSeverity === 20 ? "white" : "black")
 
-  console.log(lineObject)
+  // console.log(lineObject)
 
 
   const toggleVisibility = () => {
