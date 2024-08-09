@@ -11,6 +11,7 @@ function App() {
   const [localTime, setLocalTime] = useState("")
   const [offset, setOffset] = useState(0)
   const [editMode, setEditMode] = useState(false)
+  const [savePending, setSavePending] = useState(false)
 
   useEffect(() => {
     console.log("Offset = ", offset)
@@ -27,9 +28,10 @@ function App() {
 
   }, [currentTime, offset])
 
+
   useEffect(() => {
     localStorage.setItem('location', JSON.stringify(location));
-  }, [location]);
+  }, [savePending]);
 
   function getUserLocation() {
 
@@ -106,18 +108,25 @@ function App() {
 
   return (
     <div className="App">
-      <Description editMode={editMode} setEditMode={setEditMode} time={currentTime} localTime={localTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation} offset={offset} />
-      <Weather editMode={editMode} hour={currentHour} location={location} updateLocationStr={setLocationStr} setOffset={setOffset} currentTimeISO={currentTimeISO} />
-      <BusTimeBoxContainer editMode={editMode} />
-      <LineStatusContainer editMode={editMode} />
+      <Description setSavePending={setSavePending} editMode={editMode} setEditMode={setEditMode} time={currentTime} localTime={localTime} date={currentDate} location={locationStr} handleLocClick={getUserLocation} offset={offset} />
+      <Weather savePending={savePending} editMode={editMode} hour={currentHour} location={location} updateLocationStr={setLocationStr} setOffset={setOffset} currentTimeISO={currentTimeISO} />
+      <BusTimeBoxContainer editMode={editMode} savePending={savePending} />
+      <LineStatusContainer editMode={editMode} savePending={savePending} />
     </div>
   );
 }
 
-function Description({ time, date, location, handleLocClick, localTime, offset, editMode, setEditMode }) {
+function Description({ time, date, location, handleLocClick, localTime, offset, editMode, setEditMode, setSavePending }) {
   return (
     <header className="App-header">
-      <p className="app-title">Daniel's infoboard using React JS {editMode ? <button className="edit-button" onClick={() => setEditMode(false)}>Save</button> : <button className="edit-button" onClick={() => setEditMode(true)}>Edit</button>}</p>
+      <p className="app-title">Daniel's infoboard using React JS {editMode ? <button className="edit-button" onClick={() => {
+        setEditMode(false)
+        setSavePending(false)
+      }}>Save</button> : <button className="edit-button" onClick={() => {
+        setEditMode(true)
+        setSavePending(true)
+      }
+      }>Edit</button>}</p>
       <p className="app-time">{date}, {time}</p>
       {editMode ? <p className='app-location' onClick={handleLocClick}>{location}{offset === 0 ? null : `(${localTime})`}</p>
         : <p className='app-location-no-hover'>{location}{offset === 0 ? null : `(${localTime})`}</p>
@@ -126,7 +135,7 @@ function Description({ time, date, location, handleLocClick, localTime, offset, 
   );
 }
 
-function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset, editMode }) {
+function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset, editMode, savePending }) {
   const [forecast, setForecast] = useState([]); // State for weather conditions
   const [allPreferences, setAllPreferences] = useState([]);
   const [currentHour, setCurrentHour] = useState(hour)
@@ -140,7 +149,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset,
   useEffect(() => {
     localStorage.setItem('preferences', JSON.stringify(preferences));
     localStorage.setItem('hoursShowing', JSON.stringify(hoursShowing));
-  }, [preferences, hoursShowing]);
+  }, [savePending]);
 
 
   function formatTime(datehourmin, int) {
@@ -376,12 +385,12 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset,
   );
 }
 
-function BusTimeBoxContainer({ editMode }) {
+function BusTimeBoxContainer({ editMode, savePending }) {
   const [stopIds, setStopIds] = useState(JSON.parse(localStorage.getItem('stopIds')) ? JSON.parse(localStorage.getItem('stopIds')) : ["490003564W", "490003564E", "490015187F"])
 
   useEffect(() => {
     localStorage.setItem('stopIds', JSON.stringify(stopIds));
-  }, [stopIds]);
+  }, [savePending]);
 
 
 
@@ -614,7 +623,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
 
   useEffect(() => {
 
-    const call = `https://api.tfl.gov.uk/StopPoint/${stopId}?app_key=ab8fb89349364c56b2a597d938d04025` 
+    const call = `https://api.tfl.gov.uk/StopPoint/${stopId}?app_key=ab8fb89349364c56b2a597d938d04025`
     fetch(call)
       .then(response => response.json())
       .then(data => {
@@ -747,7 +756,7 @@ function BusTime({ busName, busTime, destinationName }) {
   )
 }
 
-function LineStatusContainer({ editMode }) {
+function LineStatusContainer({ editMode, savePending }) {
   const [linesInfo, setLinesInfo] = useState([]);
   /*Array like [{name: "Northern", severityStatusDescription: "Good Service", ...}, 
   {name: "Piccadilly", severityStatusDescription: "Bad Service", ...} ]*/
@@ -760,7 +769,7 @@ function LineStatusContainer({ editMode }) {
 
   useEffect(() => {
     localStorage.setItem('linesShowing', JSON.stringify(linesShowing));
-  }, [linesShowing]);
+  }, [savePending]);
 
   const tubeBackgroundColours = {
     "piccadilly": "#0019A8",
@@ -790,7 +799,7 @@ function LineStatusContainer({ editMode }) {
     "waterloo-city": "#0019A8"
   }
 
-  function getTubeTextBackgroundColours(tubeID){
+  function getTubeTextBackgroundColours(tubeID) {
 
     // console.log("Colors:", [tubeTextColours[tubeID], tubeBackgroundColours[tubeID]])
 
@@ -954,7 +963,7 @@ function LineStatusBox({ lineObject, handleRemoveLine, editMode, getColours }) {
 
 
   return (
-    <div className="line-status-box" style={{backgroundColor:backgroundColor, color:textColour}}>
+    <div className="line-status-box" style={{ backgroundColor: backgroundColor, color: textColour }}>
       <div className="line-status-content">
         <div className="line-name">
           {lineObject.name} Line
@@ -970,7 +979,7 @@ function LineStatusBox({ lineObject, handleRemoveLine, editMode, getColours }) {
 
       </div>
       {isVisible && (
-        <div className="disruption-reason" style={{color:"black"}}>
+        <div className="disruption-reason" style={{ color: "black" }}>
           {lineObject.reason}
         </div>
       )}
