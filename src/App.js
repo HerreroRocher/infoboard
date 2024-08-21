@@ -14,7 +14,7 @@ function App() {
   const [savePending, setSavePending] = useState(false)
 
   useEffect(() => {
-    console.log("Offset = ", offset)
+    // console.log("Offset = ", offset)
     // console.log("currentTimeISO = ", currentTimeISO)
     const date = new Date(currentTimeISO)
     date.setHours(date.getHours() + (offset ? offset : 0))
@@ -181,7 +181,7 @@ function Weather({ hour, location, updateLocationStr, currentTimeISO, setOffset,
         return response.json();
       })
       .then(data => {
-        console.log("Forecast data retreived from weatherapi: ", data)
+        // console.log("Forecast data retreived from weatherapi: ", data)
         // console.log("Forecast Hourly Data", data.forecast.forecastday[0].hour)
 
         let forecastFetched = [];
@@ -628,6 +628,8 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
       .then(response => response.json())
       .then(data => {
 
+        // console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
+        
         function getStopFromParentStop(data, id) {
           let stops = [];
           if (data.naptanId === id) {
@@ -639,12 +641,11 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
               }
             }
           }
-
+          
           return stops
-
+          
         }
-
-        console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
+        
         data = getStopFromParentStop(data, stopId)[0]
         const newBusStopInfo = data
         // console.log(newBusStopInfo)
@@ -670,7 +671,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
       })
       .then(data => {
         // Log the parsed JSON data
-        console.log(`Fetched bus times for stop id ${stopId}:`, data);
+        // console.log(`Fetched bus times for stop id ${stopId}:`, data);
 
         // Sort the bus times by arrival time
         const sortedData = data.sort((a, b) => a.timeToStation - b.timeToStation);
@@ -711,7 +712,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
     setBusTimes(busTimes.slice(0, maxBusTimes + 4)); // Render only the max number of BusTime components
   }, [busTimes.length]);
 
-  console.log("Bus Stop Info:", busStopInfo)
+  // console.log("Bus Stop Info:", busStopInfo)
 
 
   return (
@@ -813,7 +814,7 @@ function LineStatusContainer({ editMode, savePending }) {
         return response.json();
       })
       .then((data) => {
-        console.log("Line status data received from tube line api: ", data)
+        // console.log("Line status data received from tube line api: ", data)
 
         let allLineStatuses = [];
 
