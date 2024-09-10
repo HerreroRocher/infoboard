@@ -628,7 +628,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
       .then(response => response.json())
       .then(data => {
 
-        // console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
+        console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
         
         function getStopFromParentStop(data, id) {
           let stops = [];
@@ -648,7 +648,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
         
         data = getStopFromParentStop(data, stopId)[0]
         const newBusStopInfo = data
-        // console.log(newBusStopInfo)
+        console.log("new bus stop info: ", newBusStopInfo)
         if (newBusStopInfo) {
           // console.log("SET")
           setBusStopInfo(newBusStopInfo);
@@ -719,10 +719,12 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
     <div className="bustimebox">
       <div className='bustimebox-header' style={{ borderBottom: 'white solid' }}>
         <div className="bustimebox-name" >
-          {busStopInfo && busStopInfo.stopLetter ? (
+          {busStopInfo ? (
             <>
-              <p className="bus-stop">Stop {busStopInfo.stopLetter}: {busStopInfo.commonName} </p>
+              <p className="bus-stop">{busStopInfo.stopLetter ? "Stop " + busStopInfo.stopLetter + ":" : ""} {busStopInfo.commonName ? busStopInfo.commonName : ""} </p>
               <p className="bus-towards"> towards {(
+
+
                 busStopInfo.additionalProperties.filter(property => property.category === "Direction").length > 0
                   ?
                   (busStopInfo.additionalProperties.filter(property => property.key === "Towards").length > 0
@@ -730,7 +732,8 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
                     busStopInfo.additionalProperties.filter(property => property.key === "Towards")[0].value
                     :
                     busStopInfo.additionalProperties.filter(property => property.category === "Direction")[0].value)
-                  : "Unknown")} </p>
+                  : "Unknown"
+                )} </p>
             </>
           ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
 
