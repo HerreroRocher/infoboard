@@ -629,7 +629,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
       .then(data => {
 
         console.log(`Bus stop info for stop id ${stopId} using ${call}`, data)
-        
+
         function getStopFromParentStop(data, id) {
           let stops = [];
           if (data.naptanId === id) {
@@ -641,11 +641,11 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
               }
             }
           }
-          
+
           return stops
-          
+
         }
-        
+
         data = getStopFromParentStop(data, stopId)[0]
         const newBusStopInfo = data
         console.log("new bus stop info: ", newBusStopInfo)
@@ -722,9 +722,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
           {busStopInfo ? (
             <>
               <p className="bus-stop">{busStopInfo.stopLetter ? "Stop " + busStopInfo.stopLetter + ":" : ""} {busStopInfo.commonName ? busStopInfo.commonName : ""} </p>
-              <p className="bus-towards"> towards {(
-
-
+              {busStopInfo.additionalProperties ? <p className="bus-towards"> towards {(
                 busStopInfo.additionalProperties.filter(property => property.category === "Direction").length > 0
                   ?
                   (busStopInfo.additionalProperties.filter(property => property.key === "Towards").length > 0
@@ -733,7 +731,7 @@ function BusTimeBox({ stopId, handleRemoveBusStop, editMode }) {
                     :
                     busStopInfo.additionalProperties.filter(property => property.category === "Direction")[0].value)
                   : "Unknown"
-                )} </p>
+              )} </p> : ""}
             </>
           ) : busTimes.length === 0 ? <p>No current bus times</p> : <p>Loading bus...</p>}
 
