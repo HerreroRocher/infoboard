@@ -35,7 +35,7 @@ function App() {
 
   function getUserLocation() {
 
-    let preference = prompt("Enter a city name you would like to check the weather for, or enter 'Current location'")
+    let preference = prompt("Please enter the name of a city to check the weather, or type 'Current location' to use your current location:")
 
     if (preference === null || preference === "") {
       return;
