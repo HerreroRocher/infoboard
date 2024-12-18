@@ -6,4 +6,6 @@
 2. **Read the README:**
    - Please read the README file in the `builds` repo for detailed steps on how to run any of the projects.
 
+*Alternatively, you can head directly to the [infoboard public website](https://herrerorocher.github.io/infoboard/).*
+
 *If you encounter any problems or have any questions, please feel free to contact me.*
