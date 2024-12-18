@@ -17,7 +17,7 @@ git commit -m "$1"
 # Push changes to the repository
 git push
 
-# Deploy the projectnpm install gh-pages --save-dev
+# Deploy the project
 npm run deploy
 
 echo "New version pushed to github and published to public website."
